@@ -68,6 +68,9 @@
         .gauge-center .g-val { font-size: 28px; font-weight: 800; line-height: 1; }
         .gauge-center .g-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
         .gauge-card .g-sub { font-size: 12px; color: var(--text-secondary); margin-top: 12px; }
+        .btn-export { padding: 9px 20px; background: linear-gradient(135deg, #198754, #157347); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-export:hover { background: linear-gradient(135deg, #157347, #0f5132); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(25,135,84,0.3); }
+        .btn-export::before { content: '\1F4C4'; font-size: 15px; }
         .footer { text-align: center; padding: 10px; font-size: 11px; color: var(--text-secondary); }
         @media (max-width: 1100px) {
             .filters { grid-template-columns: repeat(3, 1fr); }
@@ -79,9 +82,44 @@
             .chart-row { grid-template-columns: 1fr; }
             .filters { grid-template-columns: repeat(2, 1fr); }
         }
+        @page { size: landscape; margin: 10mm 12mm; }
         @media print {
-            body { background: #fff; } .filters { display: none; }
-            .chart-box, .kpi { break-inside: avoid; border: 1px solid #dee2e6; box-shadow: none; }
+            body { background: #fff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; font-size: 10px; }
+            .dc { max-width: 100%; padding: 0; }
+            .header { background: #0f172a !important; color: #fff !important; padding: 12px 16px; margin-bottom: 10px; border-radius: 6px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .header h1 { font-size: 15px; }
+            .filters { display: none !important; }
+            .btn-export { display: none !important; }
+            .section-label { font-size: 9px; margin-bottom: 5px; padding-bottom: 2px; }
+            .gauge-row { grid-template-columns: repeat(4, 1fr) !important; gap: 8px; margin-bottom: 8px; }
+            .gauge-card { padding: 10px 8px 8px; border: 1px solid #dee2e6; box-shadow: none; -webkit-print-color-adjust: exact !important; }
+            .gauge-card h4 { font-size: 9px; margin-bottom: 6px; }
+            .gauge-wrap { width: 140px !important; height: 78px !important; }
+            .gauge-wrap canvas { width: 140px !important; height: 78px !important; }
+            .gauge-center .g-val { font-size: 18px; }
+            .gauge-center .g-label { font-size: 8px; }
+            .gauge-card .g-sub { font-size: 9px; margin-top: 4px; }
+            .supplier-row { gap: 8px; margin-bottom: 8px; }
+            .supplier-card { padding: 8px 12px; border: 1px solid #dee2e6; box-shadow: none; -webkit-print-color-adjust: exact !important; }
+            .supplier-card .s-name { font-size: 10px; }
+            .supplier-card .s-rate { font-size: 16px; }
+            .kpi-row { grid-template-columns: repeat(6, 1fr) !important; gap: 8px; margin-bottom: 8px; }
+            .kpi { padding: 10px 12px; border: 1px solid #dee2e6; box-shadow: none; break-inside: avoid; -webkit-print-color-adjust: exact !important; }
+            .kpi-label { font-size: 8px; }
+            .kpi-val { font-size: 18px; }
+            .kpi-sub { font-size: 9px; }
+            .chart-row { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; margin-bottom: 8px; }
+            .chart-box { padding: 10px 12px; border: 1px solid #dee2e6; box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
+            .chart-box h3 { font-size: 10px; margin-bottom: 8px; }
+            .chart-box canvas { max-height: 220px; }
+            .tbl-section { border: 1px solid #dee2e6; box-shadow: none; padding: 10px 12px; break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px; }
+            .tbl-section h3 { font-size: 10px; margin-bottom: 8px; }
+            table.dt { font-size: 9px; }
+            table.dt thead th { padding: 4px 6px; font-size: 8px; }
+            table.dt tbody td { padding: 4px 6px; }
+            .badge { font-size: 8px; padding: 1px 5px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .kpi-mini span { font-size: 9px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .footer { font-size: 8px; padding: 6px; }
         }
     </style>
 </head>
@@ -90,6 +128,7 @@
     <header class="header">
         <div class="header-top">
             <h1>RefrigiWear — AQL Final Shipment Inspection Dashboard <span>Quality Control Overview</span></h1>
+            <button class="btn-export" onclick="exportPDF()">Export to PDF</button>
         </div>
         <div class="filters">
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
@@ -164,7 +203,7 @@
         <h3>Defect Log (All Inspections)</h3>
         <div id="tbl-defects"></div>
     </section>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 11:19 AM &middot; 2 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 12:32 PM &middot; 2 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -180,6 +219,18 @@ function populateFilter(id, values) {
     while (sel.options.length > 1) sel.remove(1);
     values.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
     if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+function exportPDF() {
+    const btn = document.querySelector('.btn-export');
+    const origText = btn.innerHTML;
+    btn.innerHTML = 'Preparing...';
+    btn.disabled = true;
+    setTimeout(() => {
+        window.print();
+        btn.innerHTML = origText;
+        btn.disabled = false;
+    }, 300);
 }
 
 const INSPECTIONS = [
