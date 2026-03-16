@@ -44,9 +44,9 @@
         .kpi-sub { font-size: 12px; margin-top: 2px; }
         .kpi-sub.good { color: var(--pass); } .kpi-sub.bad { color: var(--fail); }
         .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); margin-bottom: var(--gap); }
-        .chart-box { background: var(--bg-card); border-radius: var(--radius); padding: 22px 24px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); min-height: 360px; display: flex; flex-direction: column; }
-        .chart-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); letter-spacing: 0.2px; }
-        .chart-box canvas { flex: 1; max-height: 320px; min-height: 260px; }
+        .chart-box { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; flex-direction: column; }
+        .chart-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); letter-spacing: 0.2px; }
+        .chart-box canvas { flex: 1; max-height: 260px; }
         .chart-full { grid-column: 1 / -1; }
         .tbl-section { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: var(--gap); overflow-x: auto; }
         .tbl-section h3 { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
@@ -89,14 +89,12 @@
         @media (max-width: 1100px) {
             .filters { grid-template-columns: repeat(4, 1fr); }
             .chart-row { grid-template-columns: 1fr; }
-            .chart-box { min-height: 320px; }
         }
         @media (max-width: 768px) {
             .header-top { flex-direction: column; align-items: flex-start; }
             .kpi-row { grid-template-columns: repeat(2, 1fr); }
             .gauge-row { grid-template-columns: repeat(2, 1fr); }
             .chart-row { grid-template-columns: 1fr; }
-            .chart-box { min-height: 300px; }
             .filters { grid-template-columns: repeat(2, 1fr); }
         }
         /* ═══ PRINT: SHARED BASE ═══ */
@@ -316,7 +314,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 06:37 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 06:43 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -2398,39 +2396,39 @@ class Dashboard {
         const pfFmt=function(val){return val+' ('+pct(val,pfTotal)+'%)';};
         const pfClr=function(ctx){return ctx.dataset.backgroundColor[ctx.dataIndex].replace('CC','');};
         this.chart('c-pf','doughnut',{labels:['Approved','Rejected'],datasets:[{data:[pass,fail],backgroundColor:[C.pass+'CC',C.fail+'CC'],borderColor:'#fff',borderWidth:2}]},
-        {responsive:true,maintainAspectRatio:false,cutout:'58%',animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16,font:{size:13}}},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${ctx.parsed} (${pct(ctx.parsed,t)}%)`;}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:8,font:{weight:'bold',size:14},color:pfClr,formatter:pfFmt}}}); }
+        {responsive:true,maintainAspectRatio:false,cutout:'58%',animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12,font:{size:12}}},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${ctx.parsed} (${pct(ctx.parsed,t)}%)`;}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:13},color:pfClr,formatter:pfFmt}}}); }
     renderMonthly(insp) {
         const months=uniq(insp,r=>monthKey(r.inspDate)).sort();
         this.chart('c-monthly','bar',{labels:months.map(monthLabel),datasets:[
             {label:'Approved',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4},
             {label:'Rejected',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:12}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:12},color:'#333'}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:12}}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1,font:{size:12}}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:11}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1,font:{size:11}}}}});
     }
     renderDefectCategory(defs) {
         const cats={}; defs.forEach(d=>{cats[d.defectClass]=(cats[d.defectClass]||0)+d.pairs;});
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         this.chart('c-defcat','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Defective Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:12},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:12}}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
     }
     renderDefectTop(defs) {
         const descs={}; defs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,8);
         this.chart('c-deftop','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:12},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
     }
     renderStyleChart(insp) {
         const styles=uniq(insp,r=>r.style);
         this.chart('c-style','bar',{labels:styles,datasets:[
             {label:'Approved',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4},
             {label:'Rejected',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:12}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:12},color:'#333'}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1,font:{size:12}}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:11}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1,font:{size:11}}}}});
     }
     renderMajorVsAllowed(insp) {
         const labels=insp.map(r=>r.style+' ('+r.color.slice(0,3)+') '+r.inspDate.slice(5));
         this.chart('c-majva','bar',{labels,datasets:[
             {label:'Major Found',data:insp.map(r=>r.majorFound),backgroundColor:insp.map(r=>r.majorFound>r.majorMaxAllowed?C.fail+'CC':C.blue+'CC'),borderRadius:4},
             {label:'Max Allowed',data:insp.map(r=>r.majorMaxAllowed),type:'line',borderColor:C.red,borderWidth:2,borderDash:[6,3],pointRadius:4,pointBackgroundColor:C.red,fill:false}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:10}},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:12}}},datalabels:{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:12},color:'#333'}},scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45,minRotation:25}},y:{beginAtZero:true,ticks:{stepSize:2,font:{size:12}}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:6}},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:11}}},datalabels:{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45,minRotation:25}},y:{beginAtZero:true,ticks:{stepSize:2,font:{size:11}}}}});
     }
     renderVendorPerformance(insp) {
         // Group by vendorCode, calculate pass rate, sort by rate desc, take top 5
@@ -2445,16 +2443,16 @@ class Dashboard {
         const labels=sorted.map(d=>d.vc+' ('+d.total+' lots)');
         const rates=sorted.map(d=>d.rate);
         const colors=rates.map(r=>r>=80?C.pass+'CC':r>=60?C.warn+'CC':C.fail+'CC');
-        this.chart('c-vendorperf','bar',{labels,datasets:[{label:'Pass Rate %',data:rates,backgroundColor:colors,borderRadius:6}]},
-        {responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:10}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:13},color:'#333',formatter:val=>val.toFixed(1)+'%'}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{beginAtZero:true,max:100,ticks:{stepSize:20,font:{size:12},callback:v=>v+'%'}}}});
+        this.chart('c-vendorperf','bar',{labels,datasets:[{label:'Pass Rate %',data:rates,backgroundColor:colors,borderRadius:4}]},
+        {responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:6}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333',formatter:val=>val.toFixed(1)+'%'}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,max:100,ticks:{stepSize:25,font:{size:10},callback:v=>v+'%'}}}});
     }
     renderTop5All(defs) {
         const descs={};
         defs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
-        this.chart('c-top5all','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.slice(0,5).map(c=>c+'CC'),borderRadius:6}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:12},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
+        this.chart('c-top5all','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.slice(0,5).map(c=>c+'CC'),borderRadius:4}]},
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
     }
     renderTop5Major(defs) {
         const majDefs=defs.filter(d=>d.severity==='Major');
@@ -2462,8 +2460,8 @@ class Dashboard {
         majDefs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
-        this.chart('c-top5major','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Major Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#fd7e14CC',borderRadius:6}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:12},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
+        this.chart('c-top5major','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Major Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#fd7e14CC',borderRadius:4}]},
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
     }
     renderTop5Minor(defs) {
         const minDefs=defs.filter(d=>d.severity==='Minor');
@@ -2471,8 +2469,8 @@ class Dashboard {
         minDefs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
-        this.chart('c-top5minor','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Minor Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#0dcaf0CC',borderRadius:6}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:50}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:12},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:11}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
+        this.chart('c-top5minor','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Minor Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#0dcaf0CC',borderRadius:4}]},
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
     }
     renderInspectionTable(insp) {
         const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'vendorCode',l:'Vendor Code'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'productType',l:'Type'},{f:'auditor',l:'Auditor'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
