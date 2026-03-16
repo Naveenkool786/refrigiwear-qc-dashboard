@@ -44,7 +44,7 @@
         .kpi-sub { font-size: 12px; margin-top: 2px; }
         .kpi-sub.good { color: var(--pass); } .kpi-sub.bad { color: var(--fail); }
         .chart-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); margin-bottom: var(--gap); }
-        .chart-box { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; flex-direction: column; }
+        .chart-box { background: var(--bg-card); border-radius: var(--radius); padding: 16px 20px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; flex-direction: column; overflow: hidden; }
         .chart-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); letter-spacing: 0.2px; }
         .chart-box canvas { flex: 1; max-height: 260px; }
         .chart-full { grid-column: 1 / -1; }
@@ -314,11 +314,12 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 06:43 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 07:00 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
 const PALETTE = [C.blue, C.orange, C.green, C.red, C.purple, C.brown, C.teal, C.pink];
+function truncLabel(s, max) { max = max || 28; return s.length > max ? s.slice(0, max-1) + '…' : s; }
 function fmt(v) { return v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(1)+'K' : v.toLocaleString(); }
 function pct(n, d) { return d > 0 ? (n/d*100).toFixed(1) : '0.0'; }
 function monthKey(d) { return d.slice(0,7); }
@@ -2408,13 +2409,13 @@ class Dashboard {
         const cats={}; defs.forEach(d=>{cats[d.defectClass]=(cats[d.defectClass]||0)+d.pairs;});
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         this.chart('c-defcat','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Defective Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>sorted[ctx[0].dataIndex][0]}},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10},callback:(v,i)=>truncLabel(sorted[i][0],30)}}}});
     }
     renderDefectTop(defs) {
         const descs={}; defs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,8);
         this.chart('c-deftop','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>sorted[ctx[0].dataIndex][0]}},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10},callback:(v,i)=>truncLabel(sorted[i][0],28)}}}});
     }
     renderStyleChart(insp) {
         const styles=uniq(insp,r=>r.style);
@@ -2444,7 +2445,7 @@ class Dashboard {
         const rates=sorted.map(d=>d.rate);
         const colors=rates.map(r=>r>=80?C.pass+'CC':r>=60?C.warn+'CC':C.fail+'CC');
         this.chart('c-vendorperf','bar',{labels,datasets:[{label:'Pass Rate %',data:rates,backgroundColor:colors,borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:6}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333',formatter:val=>val.toFixed(1)+'%'}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,max:100,ticks:{stepSize:25,font:{size:10},callback:v=>v+'%'}}}});
+        {responsive:true,maintainAspectRatio:false,animation:false,layout:{padding:{top:20}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',offset:2,font:{weight:'bold',size:11},color:'#333',formatter:val=>val.toFixed(1)+'%'}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,max:105,ticks:{stepSize:25,font:{size:10},callback:v=>v<=100?v+'%':''}}}});
     }
     renderTop5All(defs) {
         const descs={};
@@ -2452,7 +2453,7 @@ class Dashboard {
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
         this.chart('c-top5all','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.slice(0,5).map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>sorted[ctx[0].dataIndex][0]}},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10},callback:(v,i)=>truncLabel(sorted[i][0],28)}}}});
     }
     renderTop5Major(defs) {
         const majDefs=defs.filter(d=>d.severity==='Major');
@@ -2460,8 +2461,11 @@ class Dashboard {
         majDefs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
-        this.chart('c-top5major','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Major Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#fd7e14CC',borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+        const majTotal=sorted.reduce((s,e)=>s+e[1],0);
+        const majColors=['#e65100CC','#ef6c00CC','#f57c00CC','#fb8c00CC','#ffa726CC'];
+        this.chart('c-top5major','doughnut',{labels:sorted.map(s=>s[0]),datasets:[{data:sorted.map(s=>s[1]),backgroundColor:majColors,borderColor:'#fff',borderWidth:2}]},
+        {responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{padding:10},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,majTotal)+'%)'}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:10},color:ctx=>majColors[ctx.dataIndex].replace('CC',''),formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],22)+'
+'+val+' prs ('+pct(val,majTotal)+'%)'}}});
     }
     renderTop5Minor(defs) {
         const minDefs=defs.filter(d=>d.severity==='Minor');
@@ -2469,8 +2473,11 @@ class Dashboard {
         minDefs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
-        this.chart('c-top5minor','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Minor Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#0dcaf0CC',borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{padding:{right:40}},plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true,ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:10}}}}});
+        const minTotal=sorted.reduce((s,e)=>s+e[1],0);
+        const minColors=['#006064CC','#00838fCC','#0097a7CC','#00acc1CC','#26c6daCC'];
+        this.chart('c-top5minor','doughnut',{labels:sorted.map(s=>s[0]),datasets:[{data:sorted.map(s=>s[1]),backgroundColor:minColors,borderColor:'#fff',borderWidth:2}]},
+        {responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{padding:10},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,minTotal)+'%)'}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:10},color:ctx=>minColors[ctx.dataIndex].replace('CC',''),formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],22)+'
+'+val+' prs ('+pct(val,minTotal)+'%)'}}});
     }
     renderInspectionTable(insp) {
         const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'vendorCode',l:'Vendor Code'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'productType',l:'Type'},{f:'auditor',l:'Auditor'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
