@@ -611,7 +611,16 @@ def generate_dashboard_html(inspections, defects):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RefrigiWear — AQL Inspection Dashboard</title>
+    <title>RefrigiWear Quality Audit Dashboard</title>
+    <!-- Open Graph meta tags for Teams / Slack / social media link previews -->
+    <meta property="og:title" content="RefrigiWear Quality Audit Dashboard" />
+    <meta property="og:description" content="Live AQL Inspection Analytics — Pass/Fail Rates, Defect Tracking, OQR% Risk, Supplier Performance across all factories." />
+    <meta property="og:image" content="https://naveenkool786.github.io/refrigiwear-qc-dashboard/dashboard-thumbnail.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://naveenkool786.github.io/refrigiwear-qc-dashboard/product_adoption_dashboard.html" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
