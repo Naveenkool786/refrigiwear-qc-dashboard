@@ -247,14 +247,27 @@ def normalize_date(date_str):
     if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
         return date_str
 
+    # Strip leading day name if present (e.g., "Wednesday, March 24, 2025" → "March 24, 2025")
+    date_str = re.sub(r'^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*,?\s*', '', date_str, flags=re.IGNORECASE).strip()
+
     formats = [
+        '%B %d, %Y',  # March 24, 2025
+        '%b %d, %Y',  # Mar 24, 2025
+        '%B %d %Y',   # March 24 2025
+        '%b %d %Y',   # Mar 24 2025
         '%b-%d-%Y',   # Mar-24-2025
         '%B-%d-%Y',   # March-24-2025
         '%d-%b-%Y',   # 24-Mar-2025
+        '%d-%B-%Y',   # 24-March-2025
+        '%d %B %Y',   # 24 March 2025
+        '%d %b %Y',   # 24 Mar 2025
         '%m/%d/%Y',   # 03/24/2025
         '%d/%m/%Y',   # 24/03/2025
-        '%b %d, %Y',  # Mar 24, 2025
         '%Y/%m/%d',   # 2025/03/24
+        '%m-%d-%Y',   # 03-24-2025
+        '%d.%m.%Y',   # 24.03.2025
+        '%B %d,%Y',   # March 24,2025 (no space after comma)
+        '%b %d,%Y',   # Mar 24,2025
     ]
 
     for fmt in formats:
@@ -262,6 +275,19 @@ def normalize_date(date_str):
             return datetime.strptime(date_str, fmt).strftime('%Y-%m-%d')
         except:
             continue
+
+    # Last resort: try to find any date-like pattern in the string
+    match = re.search(r'(\w+)\s+(\d{1,2})\s*,?\s*(\d{4})', date_str)
+    if match:
+        try:
+            cleaned = f"{match.group(1)} {match.group(2)}, {match.group(3)}"
+            for fmt in ['%B %d, %Y', '%b %d, %Y']:
+                try:
+                    return datetime.strptime(cleaned, fmt).strftime('%Y-%m-%d')
+                except:
+                    continue
+        except:
+            pass
 
     return date_str  # Return as-is if no format matched
 
