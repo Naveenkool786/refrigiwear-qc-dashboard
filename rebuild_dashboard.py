@@ -58,6 +58,7 @@ VENDOR_DB = {
     'QIN001': {'name': 'Qingdao YSD Plastic Rubber Co.',    'country': 'China',    'region': 'Asia'},
     'QIN002': {'name': 'Qingdao Vitosafe Footwear Co.',     'country': 'China',    'region': 'Asia'},
     'QIN003': {'name': 'Qingdao Goldmyk Industrial Co.',    'country': 'China',    'region': 'Asia'},
+    'SAM001': {'name': 'Sampada Export',                     'country': 'India',    'region': 'Asia'},
     'SCE001': {'name': 'Super Champ Enterprises Inc',       'country': 'Cambodia', 'region': 'Asia'},
     'SGI001': {'name': 'Super Guard Industry Co',           'country': 'China',    'region': 'Asia'},
     'SHA005': {'name': 'Shangyu Best Apparel & Accessories', 'country': 'China',    'region': 'Asia'},
@@ -82,7 +83,7 @@ _VENDOR_KEYWORD_ALIASES = {
     'fuzhou gerxing':   'FUJ001',
     'gerxing':          'FUJ001',
     'petcher':          'PGS001',    # Petcher = PGS Group LTD
-    'sampada':          'SME001',    # Sampada uses S.M. Exports code
+    'sampada':          'SAM001',
     'cambodia horizon': 'HZN001',
     'horizon outdoor':  'HZN001',
     'horizon-galaxy':   'HZN001',
@@ -127,7 +128,7 @@ FACTORY_ALIASES = {
     'gerxing':          'Fuzhou Gerxing Garments Co Ltd',
     'petcher':          'PGS Group LTD',
     'pgs group':        'PGS Group LTD',
-    'sampada':          'S.M. Exports',
+    'sampada':          'Sampada Export',
     'cambodia horizon': 'Horizon Outdoor-Galaxy International',
     'horizon outdoor':  'Horizon Outdoor-Galaxy International',
     'horizon-galaxy':   'Horizon Outdoor-Galaxy International',
@@ -784,7 +785,7 @@ def generate_dashboard_html(inspections, defects):
         }}
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; }}
-        .dc {{ max-width: 1480px; margin: 0 auto; padding: var(--gap); }}
+        .dc {{ max-width: 1560px; margin: 0 auto; padding: var(--gap); }}
         .header {{ background: var(--bg-header); color: var(--text-on-dark); padding: 18px 24px; border-radius: var(--radius); margin-bottom: var(--gap); }}
         .header-top {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }}
         .header h1 {{ font-size: 19px; font-weight: 700; letter-spacing: 0.3px; }}
@@ -803,10 +804,10 @@ def generate_dashboard_html(inspections, defects):
         .kpi-val {{ font-size: 26px; font-weight: 700; }}
         .kpi-sub {{ font-size: 12px; margin-top: 2px; }}
         .kpi-sub.good {{ color: var(--pass); }} .kpi-sub.bad {{ color: var(--fail); }}
-        .chart-row {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }}
-        .chart-box {{ background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }}
-        .chart-box h3 {{ font-size: 13px; font-weight: 600; margin-bottom: 14px; color: var(--text-primary); }}
-        .chart-box canvas {{ max-height: 280px; }}
+        .chart-row {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); margin-bottom: var(--gap); }}
+        .chart-box {{ background: var(--bg-card); border-radius: var(--radius); padding: 22px 24px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); min-height: 360px; display: flex; flex-direction: column; }}
+        .chart-box h3 {{ font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); letter-spacing: 0.2px; }}
+        .chart-box canvas {{ flex: 1; max-height: 320px; min-height: 260px; }}
         .chart-full {{ grid-column: 1 / -1; }}
         .tbl-section {{ background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: var(--gap); overflow-x: auto; }}
         .tbl-section h3 {{ font-size: 13px; font-weight: 600; margin-bottom: 14px; }}
@@ -847,13 +848,16 @@ def generate_dashboard_html(inspections, defects):
         .btn-portrait:hover {{ background: linear-gradient(135deg, #0b5ed7, #0a58ca); box-shadow: 0 4px 12px rgba(13,110,253,0.3); }}
         .footer {{ text-align: center; padding: 10px; font-size: 11px; color: var(--text-secondary); }}
         @media (max-width: 1100px) {{
-            .filters {{ grid-template-columns: repeat(3, 1fr); }}
+            .filters {{ grid-template-columns: repeat(4, 1fr); }}
+            .chart-row {{ grid-template-columns: 1fr; }}
+            .chart-box {{ min-height: 320px; }}
         }}
         @media (max-width: 768px) {{
             .header-top {{ flex-direction: column; align-items: flex-start; }}
             .kpi-row {{ grid-template-columns: repeat(2, 1fr); }}
             .gauge-row {{ grid-template-columns: repeat(2, 1fr); }}
             .chart-row {{ grid-template-columns: 1fr; }}
+            .chart-box {{ min-height: 300px; }}
             .filters {{ grid-template-columns: repeat(2, 1fr); }}
         }}
         /* ═══ PRINT: SHARED BASE ═══ */
@@ -905,7 +909,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-landscape .supplier-card .s-name {{ font-size: 8px; }}
             body.print-landscape .supplier-card .s-rate {{ font-size: 12px; }}
             body.print-landscape .supplier-card .s-detail {{ font-size: 7px; }}
-            body.print-landscape .kpi-row {{ grid-template-columns: repeat(8, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
+            body.print-landscape .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
             body.print-landscape .kpi {{ padding: 4px 6px; }}
             body.print-landscape .kpi-label {{ font-size: 6px; }}
             body.print-landscape .kpi-val {{ font-size: 14px; }}
@@ -945,7 +949,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-portrait .supplier-card .s-name {{ font-size: 7px; }}
             body.print-portrait .supplier-card .s-rate {{ font-size: 10px; }}
             body.print-portrait .supplier-card .s-detail {{ font-size: 6px; }}
-            body.print-portrait .kpi-row {{ grid-template-columns: repeat(8, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
             body.print-portrait .kpi {{ padding: 3px 4px; }}
             body.print-portrait .kpi-label {{ font-size: 5px; }}
             body.print-portrait .kpi-val {{ font-size: 11px; }}
@@ -1040,7 +1044,6 @@ def generate_dashboard_html(inspections, defects):
         <div class="kpi info" id="k-pairs"><div class="kpi-label">Total Pairs in Lot</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi pass" id="k-shipped"><div class="kpi-label">Pairs Approved to Ship</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi warn" id="k-categories"><div class="kpi-label">Defect Categories</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
-        <div class="kpi info" id="k-vendors"><div class="kpi-label">Vendor Codes</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
     </section>
 
     <!-- CHARTS -->
@@ -1056,6 +1059,14 @@ def generate_dashboard_html(inspections, defects):
     <section class="chart-row">
         <div class="chart-box"><h3>Style-wise Pass / Fail</h3><canvas id="c-style"></canvas></div>
         <div class="chart-box"><h3>Major Defects Found vs Allowed</h3><canvas id="c-majva"></canvas></div>
+    </section>
+    <section class="chart-row">
+        <div class="chart-box"><h3>Top 5 Vendors — Quality Performance</h3><canvas id="c-vendorperf"></canvas></div>
+        <div class="chart-box"><h3>Top 5 Defects (All)</h3><canvas id="c-top5all"></canvas></div>
+    </section>
+    <section class="chart-row">
+        <div class="chart-box"><h3>Top 5 Major Defects</h3><canvas id="c-top5major"></canvas></div>
+        <div class="chart-box"><h3>Top 5 Minor Defects</h3><canvas id="c-top5minor"></canvas></div>
     </section>
     <section class="tbl-section">
         <h3>Inspection Report Details</h3>
@@ -1158,6 +1169,7 @@ class Dashboard {{
         this.renderPassFail(insp); this.renderMonthly(insp);
         this.renderDefectCategory(defs); this.renderDefectTop(defs); this.renderStyleChart(insp);
         this.renderMajorVsAllowed(insp);
+        this.renderVendorPerformance(insp); this.renderTop5All(defs); this.renderTop5Major(defs); this.renderTop5Minor(defs);
         this.renderInspectionTable(insp); this.renderDefectTable(insp,defs);
     }}
     // ─── GAUGE METERS ───
@@ -1278,8 +1290,6 @@ class Dashboard {{
         this.setKPI('k-pairs', fmt(pairs), `${{insp.length}} lots inspected`);
         this.setKPI('k-shipped', fmt(shipped), `${{pct(shipped,pairs)}}% of total pairs`, shipped<pairs?'bad':'good');
         this.setKPI('k-categories', fmt(cats), topCat?`Top: ${{topCat[0]}} (${{topCat[1]}} pairs)`:'No defects found');
-        const vendorCodes=[...new Set(insp.map(r=>r.vendorCode).filter(v=>v))];
-        this.setKPI('k-vendors', fmt(vendorCodes.length), vendorCodes.length>0?vendorCodes.join(', '):'No vendor codes resolved');
     }}
     setKPI(id,val,sub,cls) {{
         const el=document.getElementById(id); el.querySelector('.kpi-val').textContent=val;
@@ -1291,39 +1301,81 @@ class Dashboard {{
         const pfFmt=function(val){{return val+' ('+pct(val,pfTotal)+'%)';}};
         const pfClr=function(ctx){{return ctx.dataset.backgroundColor[ctx.dataIndex].replace('CC','');}};
         this.chart('c-pf','doughnut',{{labels:['Approved','Rejected'],datasets:[{{data:[pass,fail],backgroundColor:[C.pass+'CC',C.fail+'CC'],borderColor:'#fff',borderWidth:2}}]}},
-        {{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:false,plugins:{{legend:{{position:'bottom',labels:{{usePointStyle:true,padding:12}}}},tooltip:{{callbacks:{{label:ctx=>{{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${{ctx.label}}: ${{ctx.parsed}} (${{pct(ctx.parsed,t)}}%)`;}}}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:13}},color:pfClr,formatter:pfFmt}}}}}}); }}
+        {{responsive:true,maintainAspectRatio:false,cutout:'58%',animation:false,plugins:{{legend:{{position:'bottom',labels:{{usePointStyle:true,padding:16,font:{{size:13}}}}}},tooltip:{{callbacks:{{label:ctx=>{{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${{ctx.label}}: ${{ctx.parsed}} (${{pct(ctx.parsed,t)}}%)`;}}}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:8,font:{{weight:'bold',size:14}},color:pfClr,formatter:pfFmt}}}}}}); }}
     renderMonthly(insp) {{
         const months=uniq(insp,r=>monthKey(r.inspDate)).sort();
         this.chart('c-monthly','bar',{{labels:months.map(monthLabel),datasets:[
             {{label:'Approved',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4}},
             {{label:'Rejected',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:16,font:{{size:12}}}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:12}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}},ticks:{{font:{{size:12}}}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1,font:{{size:12}}}}}}}}}});
     }}
     renderDefectCategory(defs) {{
         const cats={{}}; defs.forEach(d=>{{cats[d.defectClass]=(cats[d.defectClass]||0)+d.pairs;}});
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         this.chart('c-defcat','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Defective Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}}]}},
-        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:11}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{{padding:{{right:50}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:12}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true,ticks:{{font:{{size:11}}}}}},y:{{grid:{{display:false}},ticks:{{font:{{size:12}}}}}}}}}});
     }}
     renderDefectTop(defs) {{
         const descs={{}}; defs.forEach(d=>{{descs[d.description]=(descs[d.description]||0)+d.pairs;}});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,8);
         this.chart('c-deftop','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}}]}},
-        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:11}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{{padding:{{right:50}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:12}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true,ticks:{{font:{{size:11}}}}}},y:{{grid:{{display:false}},ticks:{{font:{{size:11}}}}}}}}}});
     }}
     renderStyleChart(insp) {{
         const styles=uniq(insp,r=>r.style);
         this.chart('c-style','bar',{{labels:styles,datasets:[
             {{label:'Approved',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4}},
             {{label:'Rejected',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:16,font:{{size:12}}}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:12}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}},ticks:{{font:{{size:11}}}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1,font:{{size:12}}}}}}}}}});
     }}
     renderMajorVsAllowed(insp) {{
         const labels=insp.map(r=>r.style+' ('+r.color.slice(0,3)+') '+r.inspDate.slice(5));
         this.chart('c-majva','bar',{{labels,datasets:[
             {{label:'Major Found',data:insp.map(r=>r.majorFound),backgroundColor:insp.map(r=>r.majorFound>r.majorMaxAllowed?C.fail+'CC':C.blue+'CC'),borderRadius:4}},
             {{label:'Max Allowed',data:insp.map(r=>r.majorMaxAllowed),type:'line',borderColor:C.red,borderWidth:2,borderDash:[6,3],pointRadius:4,pointBackgroundColor:C.red,fill:false}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{grid:{{display:false}}}},y:{{beginAtZero:true,ticks:{{stepSize:2}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,layout:{{padding:{{top:10}}}},plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:16,font:{{size:12}}}}}},datalabels:{{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:12}},color:'#333'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{font:{{size:10}},maxRotation:45,minRotation:25}}}},y:{{beginAtZero:true,ticks:{{stepSize:2,font:{{size:12}}}}}}}}}});
+    }}
+    renderVendorPerformance(insp) {{
+        // Group by vendorCode, calculate pass rate, sort by rate desc, take top 5
+        const vMap={{}};
+        insp.forEach(r=>{{
+            const vc=r.vendorCode||r.factory;
+            if(!vMap[vc]) vMap[vc]={{pass:0,total:0,factory:r.factory}};
+            vMap[vc].total++;
+            if(r.result==='LOT APPROVED') vMap[vc].pass++;
+        }});
+        const sorted=Object.entries(vMap).map(([vc,d])=>({{vc,factory:d.factory,rate:d.total>0?(d.pass/d.total*100):0,pass:d.pass,total:d.total}})).sort((a,b)=>b.total-a.total).slice(0,5);
+        const labels=sorted.map(d=>d.vc+' ('+d.total+' lots)');
+        const rates=sorted.map(d=>d.rate);
+        const colors=rates.map(r=>r>=80?C.pass+'CC':r>=60?C.warn+'CC':C.fail+'CC');
+        this.chart('c-vendorperf','bar',{{labels,datasets:[{{label:'Pass Rate %',data:rates,backgroundColor:colors,borderRadius:6}}]}},
+        {{responsive:true,maintainAspectRatio:false,animation:false,layout:{{padding:{{top:10}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:13}},color:'#333',formatter:val=>val.toFixed(1)+'%'}}}},scales:{{x:{{grid:{{display:false}},ticks:{{font:{{size:11}}}}}},y:{{beginAtZero:true,max:100,ticks:{{stepSize:20,font:{{size:12}},callback:v=>v+'%'}}}}}}}});
+    }}
+    renderTop5All(defs) {{
+        const descs={{}};
+        defs.forEach(d=>{{descs[d.description]=(descs[d.description]||0)+d.pairs;}});
+        const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        if(sorted.length===0) return;
+        this.chart('c-top5all','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.slice(0,5).map(c=>c+'CC'),borderRadius:6}}]}},
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{{padding:{{right:50}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:12}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true,ticks:{{font:{{size:11}}}}}},y:{{grid:{{display:false}},ticks:{{font:{{size:11}}}}}}}}}});
+    }}
+    renderTop5Major(defs) {{
+        const majDefs=defs.filter(d=>d.severity==='Major');
+        const descs={{}};
+        majDefs.forEach(d=>{{descs[d.description]=(descs[d.description]||0)+d.pairs;}});
+        const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        if(sorted.length===0) return;
+        this.chart('c-top5major','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Major Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#fd7e14CC',borderRadius:6}}]}},
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{{padding:{{right:50}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:12}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true,ticks:{{font:{{size:11}}}}}},y:{{grid:{{display:false}},ticks:{{font:{{size:11}}}}}}}}}});
+    }}
+    renderTop5Minor(defs) {{
+        const minDefs=defs.filter(d=>d.severity==='Minor');
+        const descs={{}};
+        minDefs.forEach(d=>{{descs[d.description]=(descs[d.description]||0)+d.pairs;}});
+        const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        if(sorted.length===0) return;
+        this.chart('c-top5minor','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Minor Pairs',data:sorted.map(s=>s[1]),backgroundColor:'#0dcaf0CC',borderRadius:6}}]}},
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,layout:{{padding:{{right:50}}}},plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:12}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true,ticks:{{font:{{size:11}}}}}},y:{{grid:{{display:false}},ticks:{{font:{{size:11}}}}}}}}}});
     }}
     renderInspectionTable(insp) {{
         const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'vendorCode',l:'Vendor Code'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'productType',l:'Type'}},{{f:'auditor',l:'Auditor'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
