@@ -348,9 +348,13 @@ def generate_dashboard_html(inspections, defects):
         .gauge-center .g-val {{ font-size: 28px; font-weight: 800; line-height: 1; }}
         .gauge-center .g-label {{ font-size: 11px; color: var(--text-secondary); margin-top: 2px; }}
         .gauge-card .g-sub {{ font-size: 12px; color: var(--text-secondary); margin-top: 12px; }}
+        /* Print bar — hidden on screen, fixed on every print page */
+        .print-bar {{ display: none; }}
         .btn-export {{ padding: 9px 20px; background: linear-gradient(135deg, #198754, #157347); color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }}
         .btn-export:hover {{ background: linear-gradient(135deg, #157347, #0f5132); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(25,135,84,0.3); }}
         .btn-export::before {{ content: '\\1F4C4'; font-size: 15px; }}
+        .btn-portrait {{ background: linear-gradient(135deg, #0d6efd, #0b5ed7); }}
+        .btn-portrait:hover {{ background: linear-gradient(135deg, #0b5ed7, #0a58ca); box-shadow: 0 4px 12px rgba(13,110,253,0.3); }}
         .footer {{ text-align: center; padding: 10px; font-size: 11px; color: var(--text-secondary); }}
         @media (max-width: 1100px) {{
             .filters {{ grid-template-columns: repeat(3, 1fr); }}
@@ -362,67 +366,137 @@ def generate_dashboard_html(inspections, defects):
             .chart-row {{ grid-template-columns: 1fr; }}
             .filters {{ grid-template-columns: repeat(2, 1fr); }}
         }}
-        @page {{ size: landscape; margin: 8mm 10mm; }}
+        /* ═══ PRINT: SHARED BASE ═══ */
         @media print {{
             * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }}
-            body {{ background: #fff !important; font-size: 9px; }}
-            .dc {{ max-width: 100%; padding: 0; }}
-            /* Header — compact, keep dark bg */
-            .header {{ background: #0f172a !important; color: #fff !important; padding: 8px 14px; margin-bottom: 6px; border-radius: 4px; }}
-            .header h1 {{ font-size: 13px; }}
-            .header h1 span {{ font-size: 10px; }}
+            body {{ background: #fff !important; }}
+            .dc {{ max-width: 100%; padding: 0; padding-top: 28px; }}
+            /* Repeating print bar on every page */
+            .print-bar {{ display: flex !important; position: fixed; top: 0; left: 0; right: 0; height: 22px; background: #0f172a !important; color: #fff; padding: 3px 12px; font-size: 8px; align-items: center; justify-content: space-between; z-index: 9999; border-bottom: 2px solid #198754; }}
+            .print-bar-left {{ font-weight: 700; font-size: 9px; letter-spacing: 0.3px; }}
+            .print-bar-kpis {{ display: flex; align-items: center; gap: 8px; }}
+            .pb-kpi {{ font-size: 8px; }}
+            .pb-kpi b {{ font-weight: 700; }}
+            .pb-sep {{ opacity: 0.3; font-size: 10px; }}
+            .header {{ background: #0f172a !important; color: #fff !important; padding: 6px 12px; margin-bottom: 4px; border-radius: 4px; }}
+            .header h1 {{ font-size: 12px; }}
+            .header h1 span {{ font-size: 9px; }}
             .filters {{ display: none !important; }}
-            .btn-export {{ display: none !important; }}
-            /* Section labels */
-            .section-label {{ font-size: 8px; margin-bottom: 4px; padding-bottom: 2px; }}
-            /* Gauges — compact row, no overlap */
-            .gauge-row {{ grid-template-columns: repeat(4, 1fr) !important; gap: 6px; margin-bottom: 6px; }}
-            .gauge-card {{ padding: 6px 6px 4px; border: 1px solid #dee2e6; box-shadow: none; }}
-            .gauge-card h4 {{ font-size: 8px; margin-bottom: 2px; letter-spacing: 0.3px; }}
-            .gauge-wrap {{ width: 110px !important; height: 60px !important; }}
-            .gauge-wrap canvas {{ width: 110px !important; height: 60px !important; }}
-            .gauge-center {{ bottom: 2px; }}
-            .gauge-center .g-val {{ font-size: 14px; }}
-            .gauge-center .g-label {{ font-size: 7px; display: none; }}
-            .gauge-card .g-sub {{ font-size: 8px; margin-top: 2px; }}
-            .kpi-mini span {{ font-size: 8px; padding: 1px 4px; }}
-            .kpi-val {{ font-size: 20px; }}
-            /* Defects card in gauge row */
-            .gauge-card .kpi-val {{ font-size: 20px !important; }}
-            /* Supplier cards */
-            .supplier-row {{ gap: 6px; margin-bottom: 6px; }}
-            .supplier-card {{ padding: 6px 10px; border: 1px solid #dee2e6; box-shadow: none; }}
-            .supplier-card .s-name {{ font-size: 9px; }}
-            .supplier-card .s-rate {{ font-size: 14px; }}
-            .supplier-card .s-detail {{ font-size: 8px; }}
-            /* KPI row */
-            .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 6px; margin-bottom: 6px; }}
-            .kpi {{ padding: 6px 8px; border: 1px solid #dee2e6; box-shadow: none; break-inside: avoid; }}
-            .kpi-label {{ font-size: 7px; }}
-            .kpi-val {{ font-size: 16px; }}
-            .kpi-sub {{ font-size: 8px; }}
-            /* Charts — force 2-col, compact, avoid page-break inside each ROW */
-            .chart-row {{ grid-template-columns: repeat(2, 1fr) !important; gap: 6px; margin-bottom: 6px; break-inside: avoid; page-break-inside: avoid; }}
-            .chart-box {{ padding: 8px 10px; border: 1px solid #dee2e6; box-shadow: none; }}
-            .chart-box h3 {{ font-size: 9px; margin-bottom: 6px; }}
-            .chart-box canvas {{ max-height: 180px; }}
-            /* Tables — allow page break but keep header with first rows */
-            .tbl-section {{ border: 1px solid #dee2e6; box-shadow: none; padding: 8px 10px; margin-bottom: 6px; page-break-before: auto; }}
-            .tbl-section h3 {{ font-size: 9px; margin-bottom: 6px; }}
-            table.dt {{ font-size: 8px; }}
-            table.dt thead th {{ padding: 3px 5px; font-size: 7px; }}
-            table.dt tbody td {{ padding: 3px 5px; }}
-            .badge {{ font-size: 7px; padding: 1px 4px; }}
-            .footer {{ font-size: 7px; padding: 4px; }}
+            .btn-export, .btn-portrait {{ display: none !important; }}
+            .section-label {{ font-size: 7px; margin-bottom: 3px; padding-bottom: 1px; }}
+            .gauge-card {{ border: 1px solid #dee2e6; box-shadow: none; }}
+            .gauge-center .g-label {{ display: none; }}
+            .supplier-card {{ border: 1px solid #dee2e6; box-shadow: none; }}
+            .kpi {{ border: 1px solid #dee2e6; box-shadow: none; break-inside: avoid; }}
+            .chart-box {{ border: 1px solid #dee2e6; box-shadow: none; }}
+            .chart-row {{ break-inside: avoid; page-break-inside: avoid; }}
+            .tbl-section {{ border: 1px solid #dee2e6; box-shadow: none; }}
+            .badge {{ -webkit-print-color-adjust: exact !important; }}
+            .kpi-mini span {{ -webkit-print-color-adjust: exact !important; }}
+        }}
+        /* ═══ PRINT: LANDSCAPE MODE ═══ */
+        body.print-landscape {{ }}
+        @page {{ margin: 6mm 8mm; }}
+        body.print-landscape {{ }}
+        @media print {{
+            body.print-landscape {{ font-size: 8px; }}
+            body.print-landscape .gauge-row {{ grid-template-columns: repeat(4, 1fr) !important; gap: 5px; margin-bottom: 4px; }}
+            body.print-landscape .gauge-card {{ padding: 4px 4px 3px; }}
+            body.print-landscape .gauge-card h4 {{ font-size: 7px; margin-bottom: 1px; }}
+            body.print-landscape .gauge-wrap {{ width: 90px !important; height: 50px !important; }}
+            body.print-landscape .gauge-wrap canvas {{ width: 90px !important; height: 50px !important; }}
+            body.print-landscape .gauge-center {{ bottom: 1px; }}
+            body.print-landscape .gauge-center .g-val {{ font-size: 12px; }}
+            body.print-landscape .gauge-card .g-sub {{ font-size: 7px; margin-top: 1px; }}
+            body.print-landscape .gauge-card .kpi-val {{ font-size: 16px !important; }}
+            body.print-landscape .kpi-mini span {{ font-size: 7px; padding: 1px 3px; }}
+            body.print-landscape .supplier-row {{ gap: 4px; margin-bottom: 4px; }}
+            body.print-landscape .supplier-card {{ padding: 4px 8px; }}
+            body.print-landscape .supplier-card .s-name {{ font-size: 8px; }}
+            body.print-landscape .supplier-card .s-rate {{ font-size: 12px; }}
+            body.print-landscape .supplier-card .s-detail {{ font-size: 7px; }}
+            body.print-landscape .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
+            body.print-landscape .kpi {{ padding: 4px 6px; }}
+            body.print-landscape .kpi-label {{ font-size: 6px; }}
+            body.print-landscape .kpi-val {{ font-size: 14px; }}
+            body.print-landscape .kpi-sub {{ font-size: 7px; }}
+            body.print-landscape .chart-row {{ grid-template-columns: repeat(2, 1fr) !important; gap: 5px; margin-bottom: 5px; }}
+            .print-page2 {{ break-before: page !important; page-break-before: always !important; }}
+            body.print-landscape .chart-box {{ padding: 6px 8px; }}
+            body.print-landscape .chart-box h3 {{ font-size: 8px; margin-bottom: 4px; }}
+            body.print-landscape .chart-box canvas {{ max-height: 140px; }}
+            body.print-landscape .tbl-section {{ padding: 6px 8px; margin-bottom: 5px; }}
+            body.print-landscape .tbl-section h3 {{ font-size: 8px; margin-bottom: 4px; }}
+            body.print-landscape table.dt {{ font-size: 7px; }}
+            body.print-landscape table.dt thead th {{ padding: 2px 4px; font-size: 6px; }}
+            body.print-landscape table.dt tbody td {{ padding: 2px 4px; }}
+            body.print-landscape .badge {{ font-size: 6px; padding: 1px 3px; }}
+            body.print-landscape .footer {{ font-size: 6px; padding: 3px; }}
+        }}
+        /* ═══ PRINT: PORTRAIT MODE ═══ */
+        @media print {{
+            body.print-portrait {{ font-size: 7px; }}
+            body.print-portrait .header {{ padding: 5px 10px; margin-bottom: 3px; }}
+            body.print-portrait .header h1 {{ font-size: 10px; }}
+            body.print-portrait .header h1 span {{ font-size: 8px; }}
+            body.print-portrait .section-label {{ font-size: 6px; margin-bottom: 2px; }}
+            body.print-portrait .gauge-row {{ grid-template-columns: repeat(4, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .gauge-card {{ padding: 3px 2px 2px; }}
+            body.print-portrait .gauge-card h4 {{ font-size: 6px; margin-bottom: 0; }}
+            body.print-portrait .gauge-wrap {{ width: 65px !important; height: 36px !important; }}
+            body.print-portrait .gauge-wrap canvas {{ width: 65px !important; height: 36px !important; }}
+            body.print-portrait .gauge-center {{ bottom: 0; }}
+            body.print-portrait .gauge-center .g-val {{ font-size: 9px; }}
+            body.print-portrait .gauge-card .g-sub {{ font-size: 6px; margin-top: 0; }}
+            body.print-portrait .gauge-card .kpi-val {{ font-size: 12px !important; }}
+            body.print-portrait .kpi-mini span {{ font-size: 6px; padding: 0 2px; }}
+            body.print-portrait .supplier-row {{ gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .supplier-card {{ padding: 3px 6px; }}
+            body.print-portrait .supplier-card .s-name {{ font-size: 7px; }}
+            body.print-portrait .supplier-card .s-rate {{ font-size: 10px; }}
+            body.print-portrait .supplier-card .s-detail {{ font-size: 6px; }}
+            body.print-portrait .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .kpi {{ padding: 3px 4px; }}
+            body.print-portrait .kpi-label {{ font-size: 5px; }}
+            body.print-portrait .kpi-val {{ font-size: 11px; }}
+            body.print-portrait .kpi-sub {{ font-size: 6px; }}
+            body.print-portrait .chart-row {{ grid-template-columns: repeat(2, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            /* print-page2 handled in shared base */
+            body.print-portrait .chart-box {{ padding: 4px 6px; }}
+            body.print-portrait .chart-box h3 {{ font-size: 7px; margin-bottom: 3px; }}
+            body.print-portrait .chart-box canvas {{ max-height: 110px; }}
+            body.print-portrait .tbl-section {{ padding: 4px 6px; margin-bottom: 3px; }}
+            body.print-portrait .tbl-section h3 {{ font-size: 7px; margin-bottom: 3px; }}
+            body.print-portrait table.dt {{ font-size: 6px; }}
+            body.print-portrait table.dt thead th {{ padding: 1px 2px; font-size: 5px; }}
+            body.print-portrait table.dt tbody td {{ padding: 1px 2px; }}
+            body.print-portrait .badge {{ font-size: 5px; padding: 0 2px; }}
+            body.print-portrait .footer {{ font-size: 5px; padding: 2px; }}
         }}
     </style>
 </head>
 <body>
+<!-- Repeating print header — appears on every PDF page -->
+<div class="print-bar">
+    <div class="print-bar-left">RefrigiWear — AQL Inspection Dashboard</div>
+    <div class="print-bar-kpis">
+        <span class="pb-kpi"><b>Pass Rate:</b> <span id="pb-passrate">—</span></span>
+        <span class="pb-sep">|</span>
+        <span class="pb-kpi"><b>Defects:</b> <span id="pb-defects">—</span></span>
+        <span class="pb-sep">|</span>
+        <span class="pb-kpi"><b>OQR%:</b> <span id="pb-oqr">—</span></span>
+        <span class="pb-sep">|</span>
+        <span class="pb-kpi"><b>FP AQL%:</b> <span id="pb-fpaql">—</span></span>
+    </div>
+</div>
 <div class="dc">
     <header class="header">
         <div class="header-top">
             <h1>RefrigiWear — AQL Final Shipment Inspection Dashboard <span>Quality Control Overview</span></h1>
-            <button class="btn-export" onclick="exportPDF()">Export to PDF</button>
+            <div style="display:flex;gap:8px;">
+                <button class="btn-export" onclick="exportPDF('landscape')">PDF Landscape</button>
+                <button class="btn-export btn-portrait" onclick="exportPDF('portrait')">PDF Portrait</button>
+            </div>
         </div>
         <div class="filters">
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
@@ -481,6 +555,7 @@ def generate_dashboard_html(inspections, defects):
         <div class="chart-box"><h3>Pass / Fail Ratio</h3><canvas id="c-pf"></canvas></div>
         <div class="chart-box"><h3>Monthly Inspection Results</h3><canvas id="c-monthly"></canvas></div>
     </section>
+    <div class="print-page2">
     <section class="chart-row">
         <div class="chart-box"><h3>Defects by Category (Major + Minor)</h3><canvas id="c-defcat"></canvas></div>
         <div class="chart-box"><h3>Top Defect Descriptions</h3><canvas id="c-deftop"></canvas></div>
@@ -497,6 +572,7 @@ def generate_dashboard_html(inspections, defects):
         <h3>Defect Log (All Inspections)</h3>
         <div id="tbl-defects"></div>
     </section>
+    </div>
     <footer class="footer">Last rebuilt: {now} &middot; {report_count} report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
@@ -515,19 +591,38 @@ function populateFilter(id, values) {{
     if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
 }}
 
-function exportPDF() {{
-    const btn = document.querySelector('.btn-export');
-    const origText = btn.innerHTML;
-    btn.innerHTML = 'Preparing...';
-    btn.disabled = true;
-    // Brief delay to let browser prepare print layout
+function exportPDF(orientation) {{
+    // Remove any previous print class
+    document.body.classList.remove('print-landscape', 'print-portrait');
+    document.body.classList.add('print-' + orientation);
+    // Update @page size dynamically
+    let pageStyle = document.getElementById('print-page-style');
+    if (!pageStyle) {{
+        pageStyle = document.createElement('style');
+        pageStyle.id = 'print-page-style';
+        document.head.appendChild(pageStyle);
+    }}
+    pageStyle.textContent = '@page {{ size: ' + orientation + '; margin: 6mm 8mm; }}';
+    // Populate print-bar KPIs from current gauge values
+    const pr = document.getElementById('gv-passrate');
+    const df = document.getElementById('gv-defects');
+    const oq = document.getElementById('gv-oqr');
+    const fp = document.getElementById('gv-fpaql');
+    document.getElementById('pb-passrate').textContent = pr ? pr.textContent : '—';
+    document.getElementById('pb-defects').textContent = df ? df.textContent : '—';
+    document.getElementById('pb-oqr').textContent = oq ? oq.textContent : '—';
+    document.getElementById('pb-fpaql').textContent = fp ? fp.textContent : '—';
+    // Copy colors
+    if (pr) document.getElementById('pb-passrate').style.color = pr.style.color || '#fff';
+    if (oq) document.getElementById('pb-oqr').style.color = oq.style.color || '#fff';
+    if (fp) document.getElementById('pb-fpaql').style.color = fp.style.color || '#fff';
+    // Brief delay then print
     setTimeout(() => {{
         window.print();
         setTimeout(() => {{
-            btn.innerHTML = origText;
-            btn.disabled = false;
+            document.body.classList.remove('print-landscape', 'print-portrait');
         }}, 500);
-    }}, 400);
+    }}, 300);
 }}
 
 const INSPECTIONS = {insp_json};
