@@ -96,7 +96,7 @@ def parse_aql_pdf(filepath):
     inspection['color'] = extract_field(gen, 'Color & Code') or ''
     inspection['lotSize'] = safe_int(extract_field(gen, 'Production Lot Size'))
     inspection['result'] = extract_field(gen, 'Inspection Result') or ''
-    inspection['pairsApproved'] = safe_int(extract_field(gen, 'Pairs Approved for Shipment'))
+    inspection['pairsApproved'] = safe_int(extract_field(gen, 'Approved for Shipment'))
     inspection['shipDate'] = extract_field(gen, 'Shipment Date') or ''
     inspection['balanceBefore'] = safe_int(extract_field(gen, 'Balance Pending before'))
     inspection['balanceAfter'] = safe_int(extract_field(gen, 'Balance Pending after'))
@@ -175,22 +175,22 @@ def parse_aql_pdf(filepath):
             cells = [str(c).strip() if c else '' for c in row]
             joined = ' '.join(cells).lower()
 
-            # Detect severity section headers
-            if 'pairs with major' in joined:
+            # Detect severity section headers (handles both "Pairs with" and "Pcs/Pair with" from bilingual reports)
+            if 'with major' in joined and ('pair' in joined or 'pcs' in joined):
                 current_severity = 'Major'
                 continue
-            elif 'pairs with minor' in joined:
+            elif 'with minor' in joined and ('pair' in joined or 'pcs' in joined):
                 current_severity = 'Minor'
                 continue
-            elif 'pairs with important' in joined:
+            elif 'with important' in joined and ('pair' in joined or 'pcs' in joined):
                 current_severity = 'Important'
                 continue
-            elif 'total pairs' in joined or 'maximum allowed' in joined:
+            elif 'total p' in joined or 'maximum allowed' in joined:
                 continue
             elif 'defect class' in joined:
                 continue
 
-            if current_severity and cells[0] and cells[0].lower() not in ('', 'defect class', 'part ix'):
+            if current_severity and cells[0] and cells[0].lower() not in ('', 'defect class', 'part ix') and 'defect class' not in cells[0].lower():
                 defect_class = cells[0]
                 # Last non-empty cell is usually the pair count
                 pairs_val = 0
@@ -518,7 +518,7 @@ def generate_dashboard_html(inspections, defects):
 <div class="dc">
     <header class="header">
         <div class="header-top">
-            <h1>RefrigiWear — AQL Final Shipment Inspection Dashboard <span>Quality Control Overview</span></h1>
+            <h1>RefrigiWear Quality Audit Dashboard</h1>
             <div style="display:flex;gap:8px;">
                 <button class="btn-export" onclick="exportPDF('landscape')">PDF Landscape</button>
                 <button class="btn-export btn-portrait" onclick="exportPDF('portrait')">PDF Portrait</button>

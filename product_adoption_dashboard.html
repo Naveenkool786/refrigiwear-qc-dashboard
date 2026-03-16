@@ -212,7 +212,7 @@
 <div class="dc">
     <header class="header">
         <div class="header-top">
-            <h1>RefrigiWear — AQL Final Shipment Inspection Dashboard <span>Quality Control Overview</span></h1>
+            <h1>RefrigiWear Quality Audit Dashboard</h1>
             <div style="display:flex;gap:8px;">
                 <button class="btn-export" onclick="exportPDF('landscape')">PDF Landscape</button>
                 <button class="btn-export btn-portrait" onclick="exportPDF('portrait')">PDF Portrait</button>
@@ -293,7 +293,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 03:13 PM &middot; 14 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 03:34 PM &middot; 17 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -356,7 +356,7 @@ const INSPECTIONS = [
     "color": "BLACK",
     "lotSize": 372,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 372,
     "shipDate": "",
     "balanceBefore": 372,
     "balanceAfter": 0,
@@ -389,7 +389,7 @@ const INSPECTIONS = [
     "color": "BLACK",
     "lotSize": 372,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 372,
     "shipDate": "2025-07-31",
     "balanceBefore": 372,
     "balanceAfter": 0,
@@ -422,7 +422,7 @@ const INSPECTIONS = [
     "color": "BLACK/LIME",
     "lotSize": 392,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 392,
     "shipDate": "2025-07-31",
     "balanceBefore": 392,
     "balanceAfter": 0,
@@ -455,7 +455,7 @@ const INSPECTIONS = [
     "color": "BLACK",
     "lotSize": 130,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 130,
     "shipDate": "2025-07-31",
     "balanceBefore": 130,
     "balanceAfter": 0,
@@ -488,7 +488,7 @@ const INSPECTIONS = [
     "color": "BLACK/LIME",
     "lotSize": 109,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 109,
     "shipDate": "2025-07-31",
     "balanceBefore": 109,
     "balanceAfter": 0,
@@ -521,7 +521,7 @@ const INSPECTIONS = [
     "color": "BLACK",
     "lotSize": 130,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 130,
     "shipDate": "2025-07-31",
     "balanceBefore": 130,
     "balanceAfter": 0,
@@ -554,7 +554,7 @@ const INSPECTIONS = [
     "color": "BLACK/LIME",
     "lotSize": 110,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 110,
     "shipDate": "2025-07-31",
     "balanceBefore": 110,
     "balanceAfter": 0,
@@ -587,7 +587,7 @@ const INSPECTIONS = [
     "color": "BLACK/LIME",
     "lotSize": 392,
     "result": "LOT APPROVED",
-    "pairsApproved": 0,
+    "pairsApproved": 392,
     "shipDate": "2025-07-31",
     "balanceBefore": 392,
     "balanceAfter": 0,
@@ -675,6 +675,105 @@ const INSPECTIONS = [
     "minorMaxAllowed": 10,
     "minorFound": 4,
     "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over."
+  },
+  {
+    "refNo": "RW-20250307-003",
+    "inspDate": "2025-03-08",
+    "brand": "REFRIGIWEAR",
+    "factory": "CAMBODIA HORIZON",
+    "poDate": "2024-11-13",
+    "style": "7930",
+    "color": "BLACK/LIME",
+    "lotSize": 1208,
+    "result": "LOT APPROVED",
+    "pairsApproved": 1208,
+    "shipDate": "2025-03-20",
+    "balanceBefore": 2000,
+    "balanceAfter": 792,
+    "timesReworked": 0,
+    "poNo": "2718",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 125,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 7,
+    "majorFound": 3,
+    "minorMaxAllowed": 10,
+    "minorFound": 7,
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon Sewing completed 50% of garments. Below is size run from which inspection got performed.\nSML/135;MED/361;LAR/355;XLG/0;2XL/92;3XL/160;4XL/872;5XL/33 = 1208 Pcs, Rest did not packed inside Master cartons.\n5-Back Elastic weaving pleats not uniform / We asked Production people & QC's to note down and work on improvements as it should match the level as Approved Sample."
+  },
+  {
+    "refNo": "RW-20250307-002",
+    "inspDate": "2025-03-08",
+    "brand": "REFRIGIWEAR",
+    "factory": "CAMBODIA HORIZON",
+    "poDate": "2024-11-13",
+    "style": "8930",
+    "color": "BLACK/LIME",
+    "lotSize": 1899,
+    "result": "LOT APPROVED",
+    "pairsApproved": 1899,
+    "shipDate": "2025-03-20",
+    "balanceBefore": 2010,
+    "balanceAfter": 111,
+    "timesReworked": 0,
+    "poNo": "2718",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 125,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 7,
+    "majorFound": 3,
+    "minorMaxAllowed": 10,
+    "minorFound": 4,
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon completed / packed 80% of garments. Below is size run from which inspection got performed.\nSML/172;MED/394;LAR/415;XLG/340;2XL/263;3XL/170;4XL/85;5XL/60 = 1899 Pcs, Rest did not packed inside Master cartons."
+  },
+  {
+    "refNo": "RW-20250307-001",
+    "inspDate": "2025-03-07",
+    "brand": "REFRIGIWEAR",
+    "factory": "CAMBODIA HORIZON",
+    "poDate": "2024-11-13",
+    "style": "8935",
+    "color": "BLACK/LIME",
+    "lotSize": 1510,
+    "result": "LOT APPROVED",
+    "pairsApproved": 1510,
+    "shipDate": "2025-03-22",
+    "balanceBefore": 1510,
+    "balanceAfter": 0,
+    "timesReworked": 0,
+    "poNo": "2718",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 125,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 7,
+    "majorFound": 5,
+    "minorMaxAllowed": 10,
+    "minorFound": 2,
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack."
   },
   {
     "refNo": "RW-004",
@@ -810,6 +909,244 @@ const INSPECTIONS = [
   }
 ];
 const DEFECTS = [
+  {
+    "refNo": "RW-20250307-003",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Reflective tape surface scratched",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-20250307-003",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Creased Reflective tape",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-003",
+    "severity": "Minor",
+    "defectClass": "Esthetic Look",
+    "description": "Stains on Garment/Poor Cleanliness",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-003",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Stitching defects that affect appearance",
+    "pairs": 3
+  },
+  {
+    "refNo": "RW-20250307-003",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-002",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Reflective tape mispositioned",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-20250307-002",
+    "severity": "Major",
+    "defectClass": "Stitching",
+    "description": "Stitching defects that affect appearance",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-002",
+    "severity": "Minor",
+    "defectClass": "Esthetic Look",
+    "description": "Stains on Garment/Poor Cleanliness",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-002",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-001",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Stains on Garment/Poor Cleanliness",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-001",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Reflective tape surface scratched",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-20250307-001",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Exposed Insulation Fibres",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-20250307-001",
+    "severity": "Minor",
+    "defectClass": "Esthetic Look",
+    "description": "Exposed Insulation Fibres",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-007",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-002",
+    "severity": "Major",
+    "defectClass": "Esthetic_Look_外观",
+    "description": "Upper Surface Defect 表面瑕疵 Fabric surface defect",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-002",
+    "severity": "Major",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Missing bar Tack stitch",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-002",
+    "severity": "Minor",
+    "defectClass": "Fabric_Defects_布料瑕疵",
+    "description": "Fabric defects that compromise strength or durability/影响强度的布料瑕疵",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-002",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads",
+    "pairs": 3
+  },
+  {
+    "refNo": "RW-FujianGerxing-004",
+    "severity": "Major",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Front panel misaligned",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-004",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Button misaliged",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-004",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-006",
+    "severity": "Major",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Front panel misaligned",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-006",
+    "severity": "Minor",
+    "defectClass": "Fabric_Defects_布料瑕疵 Fabr",
+    "description": "ic defects that compromise strength or durability/影响强度的布料 瑕疵",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-006",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-008",
+    "severity": "Major",
+    "defectClass": "Esthetic_Look_外观",
+    "description": "Grain/Shade Mismatch 纹理/色差 Grip Dot Pattern not as per Original",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-008",
+    "severity": "Minor",
+    "defectClass": "Esthetic_Look_外观",
+    "description": "Grain/Shade Mismatch 纹理/色差 Grip Dot Pattern not as per Original",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-008",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-001",
+    "severity": "Major",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-001",
+    "severity": "Minor",
+    "defectClass": "Esthetic_Look_外观",
+    "description": "Stains on Garment/Poor Cleanliness 成衣污渍/ 清洁度 Vanishing Pen marks visible",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-001",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Reflective Tape waviness",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-001",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-003",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-FujianGerxing-005",
+    "severity": "Major",
+    "defectClass": "Fabric_Defects_布料瑕疵 Fabr",
+    "description": "ic defects that compromise strength or durability/影响强度的布料 瑕疵",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-FujianGerxing-005",
+    "severity": "Minor",
+    "defectClass": "Stitching_車線",
+    "description": "Loose threads/线松散",
+    "pairs": 2
+  },
   {
     "refNo": "RW-20250324-003",
     "severity": "Major",
