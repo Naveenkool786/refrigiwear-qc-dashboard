@@ -293,7 +293,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 01:17 PM &middot; 2 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 02:29 PM &middot; 5 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -346,6 +346,105 @@ function exportPDF(orientation) {
 }
 
 const INSPECTIONS = [
+  {
+    "refNo": "RW-001",
+    "inspDate": "Tuesday, 10 September 2024",
+    "brand": "RefrigiWear",
+    "factory": "Sampada Export, Gurugram, India",
+    "poDate": "2024-06-14",
+    "style": "0620RBLK",
+    "color": "BLK",
+    "lotSize": 952,
+    "result": "LOT REJECTED",
+    "pairsApproved": 0,
+    "shipDate": "2024-09-16",
+    "balanceBefore": 952,
+    "balanceAfter": 952,
+    "timesReworked": 0,
+    "poNo": "2474",
+    "location": "India",
+    "chemMaterials": "Not Performed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT REJECTED",
+    "sampleSize": 125,
+    "opticalResult": "NOT PERFORMED",
+    "majorPlan": "Tightened 2.50%",
+    "minorPlan": "Tightened 4.00%",
+    "majorMaxAllowed": 5,
+    "majorFound": 5,
+    "minorMaxAllowed": 8,
+    "minorFound": 6,
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments"
+  },
+  {
+    "refNo": "RW-002",
+    "inspDate": "Tuesday, 10 September 2024",
+    "brand": "RefrigiWear",
+    "factory": "Sampada Export, Gurugram, India",
+    "poDate": "2024-06-14",
+    "style": "0630RBLK",
+    "color": "BLK",
+    "lotSize": 432,
+    "result": "LOT APPROVED",
+    "pairsApproved": 432,
+    "shipDate": "2024-09-16",
+    "balanceBefore": 432,
+    "balanceAfter": 0,
+    "timesReworked": 0,
+    "poNo": "2474",
+    "location": "India",
+    "chemMaterials": "Not Performed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 16,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 16,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 80,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Tightened 2.50%",
+    "minorPlan": "Tightened 4.00%",
+    "majorMaxAllowed": 3,
+    "majorFound": 3,
+    "minorMaxAllowed": 5,
+    "minorFound": 4,
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments"
+  },
+  {
+    "refNo": "RW-003",
+    "inspDate": "Tuesday, 10 September 2024",
+    "brand": "RefrigiWear",
+    "factory": "Sampada Export, Gurugram, India",
+    "poDate": "2024-06-14",
+    "style": "0685RBLK",
+    "color": "BLK",
+    "lotSize": 1096,
+    "result": "LOT REJECTED",
+    "pairsApproved": 0,
+    "shipDate": "2024-09-16",
+    "balanceBefore": 1096,
+    "balanceAfter": 1096,
+    "timesReworked": 0,
+    "poNo": "2474",
+    "location": "India",
+    "chemMaterials": "Not Performed",
+    "chemFullShoe": null,
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 125,
+    "opticalResult": "LOT REJECTED",
+    "majorPlan": "Tightened 2.50%",
+    "minorPlan": "Tightened 4.00%",
+    "majorMaxAllowed": 5,
+    "majorFound": 17,
+    "minorMaxAllowed": 8,
+    "minorFound": 4,
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nWhite marker makring not clean underneath straps component in some garments"
+  },
   {
     "refNo": "RW-20250324-003",
     "inspDate": "2025-03-24",
@@ -483,6 +582,104 @@ const DEFECTS = [
     "defectClass": "Stitching",
     "description": "Stitching Defect Overlapping stitch",
     "pairs": 2
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Brand Logo RW woven Logo Uneven Edges",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Major",
+    "defectClass": "Fabric Defects",
+    "description": "Fabric defects that compromise strength or durability Folding Impression on lining inside",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Major",
+    "defectClass": "Packing and Labeling",
+    "description": "Printing errors on labels",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads Long Loose threads End",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads Cuffs Loose threads End",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-001",
+    "severity": "Minor",
+    "defectClass": "Packing and Labeling",
+    "description": "Small printing defects on labels",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-002",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Brand Logo RW woven Logo Uneven Edges",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-002",
+    "severity": "Major",
+    "defectClass": "Fabric Defects",
+    "description": "Fabric defects that compromise strength or durability Folding Impression on lining inside",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-002",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads Inside Collar Loose threads End",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-002",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Loose threads Armpit Loose threads End",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-003",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Brand Logo RW woven Logo Uneven Edges",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-003",
+    "severity": "Major",
+    "defectClass": "Stitching",
+    "description": "Uneven stitches Box stitch width Not as per Original Sample",
+    "pairs": 11
+  },
+  {
+    "refNo": "RW-003",
+    "severity": "Major",
+    "defectClass": "Stitching",
+    "description": "Stitching defects that affect appearance Elastic Pleats formity not as per Orginal Sample",
+    "pairs": 4
+  },
+  {
+    "refNo": "RW-003",
+    "severity": "Minor",
+    "defectClass": "Esthetic Look",
+    "description": "Stains on Garment/Poor Cleanliness White Marking Visible",
+    "pairs": 4
   }
 ];
 
