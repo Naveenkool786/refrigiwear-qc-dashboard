@@ -30,6 +30,51 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, "product_adoption_dashboard.html")
 
+# ── Factory name normalization ──
+# Maps variations of the same factory to one canonical name.
+# The key is a lowercase substring to match; the value is the canonical name.
+# Order matters — first match wins, so put more specific patterns first.
+FACTORY_ALIASES = {
+    'fujian gerxing':   'China Fujian Gerxing',
+    'petcher':          'Petcher',
+    'sampada':          'Sampada Export, Gurugram, India',
+    'cambodia horizon': 'CAMBODIA HORIZON',
+    'linear':           'Linear (Super Champ)',
+    'super champ':      'Linear (Super Champ)',
+    'sce001':           'Linear (Super Champ)',
+}
+
+# Maps canonical factory name → country location.
+# Add new factories here as you onboard them.
+FACTORY_LOCATIONS = {
+    'Petcher':                         'China',
+    'China Fujian Gerxing':            'China',
+    'CAMBODIA HORIZON':                'Cambodia',
+    'Sampada Export, Gurugram, India':  'India',
+    'Linear (Super Champ)':            'Cambodia',
+}
+
+# Maps variations of brand names to one canonical name.
+BRAND_ALIASES = {
+    'refrigiwear': 'RefrigiWear',
+}
+
+def normalize_factory(raw_name):
+    """Return a canonical factory name by matching known aliases."""
+    lower = raw_name.lower()
+    for pattern, canonical in FACTORY_ALIASES.items():
+        if pattern in lower:
+            return canonical
+    return raw_name  # no alias matched — keep original
+
+def normalize_brand(raw_name):
+    """Return a canonical brand name by matching known aliases."""
+    lower = raw_name.strip().lower()
+    for pattern, canonical in BRAND_ALIASES.items():
+        if pattern in lower:
+            return canonical
+    return raw_name.strip()
+
 
 # ═══════════════════════════════════════════════════════════════
 #  PDF PARSER — extracts structured data from AQL report PDFs
@@ -89,8 +134,8 @@ def parse_aql_pdf(filepath):
 
     inspection['refNo'] = extract_field(gen, 'Inspection Reference No') or ''
     inspection['inspDate'] = extract_field(gen, 'Inspection Date') or ''
-    inspection['brand'] = extract_field(gen, 'Client & Brand') or ''
-    inspection['factory'] = extract_field(gen, 'Trader/Agent & Factory') or ''
+    inspection['brand'] = normalize_brand(extract_field(gen, 'Client & Brand') or '')
+    inspection['factory'] = normalize_factory(extract_field(gen, 'Trader/Agent & Factory') or '')
     inspection['poDate'] = extract_field(gen, 'PO Date') or ''
     inspection['style'] = extract_field(gen, 'Style Name & Ref No') or ''
     inspection['color'] = extract_field(gen, 'Color & Code') or ''
@@ -110,9 +155,11 @@ def parse_aql_pdf(filepath):
                     inspection['poNo'] = str(row[i + 1]).strip()
                 break
 
-    # Derive location from factory name
+    # Derive location — check FACTORY_LOCATIONS first, then guess from name
     factory = inspection.get('factory', '')
-    if 'china' in factory.lower():
+    if factory in FACTORY_LOCATIONS:
+        inspection['location'] = FACTORY_LOCATIONS[factory]
+    elif 'china' in factory.lower():
         inspection['location'] = 'China'
     elif 'vietnam' in factory.lower():
         inspection['location'] = 'Vietnam'
@@ -122,6 +169,8 @@ def parse_aql_pdf(filepath):
         inspection['location'] = 'Bangladesh'
     elif 'indonesia' in factory.lower():
         inspection['location'] = 'Indonesia'
+    elif 'cambodia' in factory.lower():
+        inspection['location'] = 'Cambodia'
     else:
         inspection['location'] = factory.split('-')[0].strip() if '-' in factory else 'Unknown'
 
@@ -229,9 +278,259 @@ def parse_aql_pdf(filepath):
     else:
         inspection['comments'] = ''
 
+    # ── New unified fields (defaults for legacy format) ──
+    inspection['productType'] = ''
+    inspection['factoryCode'] = ''
+    inspection['auditor'] = ''
+    inspection['reportFormat'] = 'legacy'
+
+    # Add 'classification' to defects (empty for legacy format)
+    for d in defects:
+        if 'classification' not in d:
+            d['classification'] = ''
+
     # ── Normalize date format to YYYY-MM-DD ──
     inspection['inspDate'] = normalize_date(inspection['inspDate'])
     inspection['shipDate'] = normalize_date(inspection['shipDate'])
+    inspection['poDate'] = normalize_date(inspection['poDate'])
+
+    return inspection, defects
+
+
+# ═══════════════════════════════════════════════════════════════
+#  NEW INSPECTION FORM PARSER — for the newer Globe QC template
+# ═══════════════════════════════════════════════════════════════
+
+def extract_text_field(text, label):
+    """Extract value after a label in plain text (next non-empty line or same line after label)."""
+    lines = text.split('\n')
+    for i, line in enumerate(lines):
+        if label.lower() in line.lower():
+            # Check if value is on the same line after the label
+            parts = re.split(re.escape(label), line, flags=re.IGNORECASE, maxsplit=1)
+            if len(parts) > 1 and parts[1].strip():
+                return parts[1].strip()
+            # Otherwise check the next line
+            if i + 1 < len(lines) and lines[i + 1].strip():
+                return lines[i + 1].strip()
+    return ''
+
+
+def parse_new_inspection_pdf(filepath):
+    """Parse a 'New Inspection Form' PDF and return (inspection_dict, defects_list)."""
+    inspection = {}
+    defects = []
+
+    try:
+        with pdfplumber.open(filepath) as pdf:
+            # Collect text and tables from all content pages (skip photo appendix)
+            all_text = ''
+            all_tables = []
+            for page in pdf.pages:
+                page_text = page.extract_text() or ''
+                if 'Photo appendix' in page_text:
+                    break  # Stop at photo pages
+                all_text += page_text + '\n'
+                all_tables.extend(page.extract_tables())
+    except Exception as e:
+        print(f"  WARNING: Could not read {os.path.basename(filepath)}: {e}")
+        return None, None
+
+    # ── Basic Info from text ──
+    # Audit Date: "Mon, 01 Dec 2025, 12:15 pm" — strip time part
+    audit_date_raw = extract_text_field(all_text, 'Audit Date:')
+    # Remove time portion (everything after the year)
+    date_match = re.search(r'(\d{1,2}\s+\w+\s+\d{4})', audit_date_raw)
+    inspection['inspDate'] = date_match.group(1) if date_match else audit_date_raw
+
+    inspection['brand'] = normalize_brand(extract_text_field(all_text, 'Brand/Family Brand'))
+    inspection['auditor'] = extract_text_field(all_text, 'Auditor:')
+    inspection['productType'] = extract_text_field(all_text, 'Product Type')
+    inspection['factoryCode'] = extract_text_field(all_text, 'Factory Code')
+
+    # Factory name from Filepath header: "RefrigiWear/KH - Cambodia/SCE001 - Linear (Super Champ)"
+    filepath_match = re.search(r'Filepath:\s*RefrigiWear/([^/]+)/([^\s]+)\s*-\s*(.+?)(?:\s+Template)', all_text)
+    if filepath_match:
+        region_code = filepath_match.group(1).strip()  # "KH - Cambodia"
+        factory_full = filepath_match.group(3).strip()  # "Linear (Super Champ)"
+        inspection['factory'] = normalize_factory(factory_full)
+    else:
+        inspection['factory'] = normalize_factory(inspection['factoryCode'])
+
+    # PO/Style from PO Information table
+    po_table = None
+    for t in all_tables:
+        if t and t[0] and any('PO/Style' in str(c) for c in t[0] if c):
+            po_table = t
+            break
+
+    if po_table and len(po_table) > 1:
+        po_style = str(po_table[1][0]).strip() if po_table[1][0] else ''
+        inspection['poNo'] = po_style
+        # Parse style from PO string: "PO3066-1255CBLK" → style="1255CBLK"
+        po_parts = po_style.split('-', 1)
+        if len(po_parts) > 1:
+            inspection['style'] = po_parts[1]
+        else:
+            inspection['style'] = po_style
+        # PO Order Date
+        inspection['poDate'] = str(po_table[1][1]).strip() if len(po_table[1]) > 1 and po_table[1][1] else ''
+    else:
+        po_style_text = extract_text_field(all_text, 'PO No./Style No.')
+        inspection['poNo'] = po_style_text
+        po_parts = po_style_text.split('-', 1)
+        inspection['style'] = po_parts[1] if len(po_parts) > 1 else po_style_text
+        inspection['poDate'] = ''
+
+    # Color — try filename first, then extract from style suffix
+    # Filename pattern: ...-PO3066-1255CBLK-... → style part after last segment
+    fname_lower = os.path.basename(filepath).lower()
+    known_colors = ['blk', 'black', 'brn', 'brown', 'wht', 'white', 'red', 'blue', 'grn', 'green',
+                    'gry', 'grey', 'gray', 'navy', 'tan', 'lime', 'org', 'orange', 'blk-lim']
+    found_color = ''
+    for c in known_colors:
+        if c in fname_lower:
+            found_color = c.upper()
+            break
+    if found_color:
+        inspection['color'] = found_color
+    else:
+        # Fallback: extract trailing alpha from style (e.g. "1255CBLK" → last 3 = "BLK")
+        style = inspection.get('style', '')
+        color_match = re.search(r'([A-Z]{3,})$', style)
+        inspection['color'] = color_match.group(1) if color_match else style
+
+    # ── AQL Sampling Plan table ──
+    aql_table = None
+    for t in all_tables:
+        if t and t[0] and any('Lot Qty' in str(c) for c in t[0] if c):
+            aql_table = t
+            break
+
+    if aql_table and len(aql_table) > 1:
+        row = aql_table[1]
+        # Lot size: "Lot Size [1201-3200]" → extract upper bound
+        lot_str = str(row[0]) if row[0] else ''
+        lot_match = re.search(r'(\d+)\]', lot_str)
+        if lot_match:
+            inspection['lotSize'] = int(lot_match.group(1))
+        else:
+            inspection['lotSize'] = safe_int(lot_str)
+        inspection['sampleSize'] = safe_int(row[2]) if len(row) > 2 else 0
+        inspection['majorMaxAllowed'] = safe_int(row[3]) if len(row) > 3 else 0
+        inspection['minorMaxAllowed'] = safe_int(row[4]) if len(row) > 4 else 0
+    else:
+        inspection['lotSize'] = 0
+        inspection['sampleSize'] = 0
+        inspection['majorMaxAllowed'] = 0
+        inspection['minorMaxAllowed'] = 0
+
+    # ── Inspection Result ──
+    result_text = extract_text_field(all_text, 'Inspection Result')
+    if 'pass' in result_text.lower():
+        inspection['result'] = 'LOT APPROVED'
+    elif 'fail' in result_text.lower():
+        inspection['result'] = 'LOT REJECTED'
+    else:
+        inspection['result'] = result_text
+
+    # ── Offered Qty / Pairs Approved ──
+    offered_qty = safe_int(extract_text_field(all_text, 'Inspection Offered Qty'))
+    order_qty = safe_int(extract_text_field(all_text, 'PO Order Qty'))
+    lot_size = inspection['lotSize'] if inspection['lotSize'] > 0 else (offered_qty or order_qty)
+    if inspection['lotSize'] == 0:
+        inspection['lotSize'] = lot_size
+
+    if inspection['result'] == 'LOT APPROVED':
+        inspection['pairsApproved'] = offered_qty or order_qty
+    else:
+        inspection['pairsApproved'] = 0
+
+    # ── Generate Ref No from filename or PO+date ──
+    basename = os.path.splitext(os.path.basename(filepath))[0]
+    inspection['refNo'] = 'RW-NIF-' + inspection.get('poNo', basename)[:20]
+
+    # ── Defect tables: "Major Defects Found" and "Minor Defects Found" ──
+    inspection['majorFound'] = 0
+    inspection['minorFound'] = 0
+
+    for t in all_tables:
+        if not t or not t[0] or len(t[0]) < 3:
+            continue
+        header_joined = ' '.join(str(c) for c in t[0] if c).lower()
+        if 'defects found' not in header_joined or 'defects classification' not in header_joined:
+            continue
+
+        # Determine severity from first column header
+        first_col = str(t[0][0]).lower() if t[0][0] else ''
+        if 'major' in first_col:
+            severity = 'Major'
+        elif 'minor' in first_col:
+            severity = 'Minor'
+        else:
+            severity = 'Major'
+
+        for row in t[1:]:  # Skip header row
+            cells = [str(c).strip() if c else '' for c in row]
+            if len(cells) < 4:
+                continue
+            defect_name = cells[0]        # "Esthetic Look - Brand Logo"
+            classification = cells[1].replace('\n', ' ')  # "Color || Size || Dimension"
+            description = cells[2]         # "Scratch near Logo"
+            pcs_found = safe_int(cells[3]) # "1"
+
+            if not defect_name or pcs_found == 0:
+                continue
+
+            # Use defect_name as defectClass, classification as the sub-category
+            defects.append({
+                'refNo': inspection['refNo'],
+                'severity': severity,
+                'defectClass': defect_name,
+                'classification': classification,
+                'description': description,
+                'pairs': pcs_found,
+            })
+
+            if severity == 'Major':
+                inspection['majorFound'] += pcs_found
+            else:
+                inspection['minorFound'] += pcs_found
+
+    # ── Fields not present in new format — set defaults ──
+    inspection['shipDate'] = ''
+    inspection['balanceBefore'] = 0
+    inspection['balanceAfter'] = 0
+    inspection['timesReworked'] = 0
+    inspection['chemMaterials'] = 'N/A'
+    inspection['chemFullShoe'] = 'N/A'
+    inspection['criticalSampleSize'] = 0
+    inspection['criticalResult'] = 'N/A'
+    inspection['importantSampleSize'] = 0
+    inspection['importantResult'] = 'N/A'
+    inspection['opticalResult'] = ''
+    inspection['majorPlan'] = ''
+    inspection['minorPlan'] = ''
+    inspection['comments'] = extract_text_field(all_text, 'Comment/Remarks #')
+    inspection['reportFormat'] = 'new'
+
+    # ── Derive location ──
+    factory = inspection.get('factory', '')
+    if factory in FACTORY_LOCATIONS:
+        inspection['location'] = FACTORY_LOCATIONS[factory]
+    elif 'china' in factory.lower():
+        inspection['location'] = 'China'
+    elif 'cambodia' in factory.lower() or 'kh' in all_text.lower().split('filepath')[1][:50] if 'filepath' in all_text.lower() else False:
+        inspection['location'] = 'Cambodia'
+    elif 'vietnam' in factory.lower():
+        inspection['location'] = 'Vietnam'
+    elif 'india' in factory.lower():
+        inspection['location'] = 'India'
+    else:
+        inspection['location'] = 'Unknown'
+
+    # ── Normalize dates ──
+    inspection['inspDate'] = normalize_date(inspection['inspDate'])
     inspection['poDate'] = normalize_date(inspection['poDate'])
 
     return inspection, defects
@@ -247,8 +546,11 @@ def normalize_date(date_str):
     if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
         return date_str
 
-    # Strip leading day name if present (e.g., "Wednesday, March 24, 2025" → "March 24, 2025")
-    date_str = re.sub(r'^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*,?\s*', '', date_str, flags=re.IGNORECASE).strip()
+    # Strip leading day name if present (full or abbreviated: "Wednesday, March 24, 2025" or "Mon, 01 Dec 2025")
+    date_str = re.sub(r'^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s*,?\s*', '', date_str, flags=re.IGNORECASE).strip()
+
+    # Strip trailing time portion (e.g., ", 12:15 pm" or "12:15 PM")
+    date_str = re.sub(r',?\s+\d{1,2}:\d{2}\s*(am|pm|AM|PM)?\s*$', '', date_str).strip()
 
     formats = [
         '%B %d, %Y',  # March 24, 2025
@@ -311,6 +613,7 @@ def generate_dashboard_html(inspections, defects):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RefrigiWear — AQL Inspection Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
         :root {{
             --bg-primary: #f0f2f5; --bg-card: #ffffff; --bg-header: #0f172a;
@@ -325,7 +628,7 @@ def generate_dashboard_html(inspections, defects):
         .header-top {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }}
         .header h1 {{ font-size: 19px; font-weight: 700; letter-spacing: 0.3px; }}
         .header h1 span {{ font-weight: 400; opacity: 0.6; font-size: 13px; margin-left: 8px; }}
-        .filters {{ display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 14px; }}
+        .filters {{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 14px; }}
         .fg {{ display: flex; flex-direction: column; gap: 4px; }}
         .fg label {{ font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.6); }}
         .fg select {{ padding: 9px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-size: 14px; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }}
@@ -441,7 +744,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-landscape .supplier-card .s-name {{ font-size: 8px; }}
             body.print-landscape .supplier-card .s-rate {{ font-size: 12px; }}
             body.print-landscape .supplier-card .s-detail {{ font-size: 7px; }}
-            body.print-landscape .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
+            body.print-landscape .kpi-row {{ grid-template-columns: repeat(7, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
             body.print-landscape .kpi {{ padding: 4px 6px; }}
             body.print-landscape .kpi-label {{ font-size: 6px; }}
             body.print-landscape .kpi-val {{ font-size: 14px; }}
@@ -481,7 +784,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-portrait .supplier-card .s-name {{ font-size: 7px; }}
             body.print-portrait .supplier-card .s-rate {{ font-size: 10px; }}
             body.print-portrait .supplier-card .s-detail {{ font-size: 6px; }}
-            body.print-portrait .kpi-row {{ grid-template-columns: repeat(6, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .kpi-row {{ grid-template-columns: repeat(7, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
             body.print-portrait .kpi {{ padding: 3px 4px; }}
             body.print-portrait .kpi-label {{ font-size: 5px; }}
             body.print-portrait .kpi-val {{ font-size: 11px; }}
@@ -528,6 +831,7 @@ def generate_dashboard_html(inspections, defects):
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
             <div class="fg"><label>Brand</label><select id="f-brand" onchange="D.apply()"><option value="all">All Brands</option></select></div>
             <div class="fg"><label>Factory</label><select id="f-factory" onchange="D.apply()"><option value="all">All Factories</option></select></div>
+            <div class="fg"><label>Product Type</label><select id="f-ptype" onchange="D.apply()"><option value="all">All Types</option></select></div>
             <div class="fg"><label>Month</label><select id="f-month" onchange="D.apply()"><option value="all">All Months</option></select></div>
             <div class="fg"><label>PO No.</label><select id="f-po" onchange="D.apply()"><option value="all">All POs</option></select></div>
             <div class="fg"><label>Style</label><select id="f-style" onchange="D.apply()"><option value="all">All Styles</option></select></div>
@@ -574,6 +878,7 @@ def generate_dashboard_html(inspections, defects):
         <div class="kpi info" id="k-pairs"><div class="kpi-label">Total Pairs in Lot</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi pass" id="k-shipped"><div class="kpi-label">Pairs Approved to Ship</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi warn" id="k-categories"><div class="kpi-label">Defect Categories</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
+        <div class="kpi info" id="k-formats"><div class="kpi-label">Report Sources</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
     </section>
 
     <!-- CHARTS -->
@@ -654,12 +959,17 @@ function exportPDF(orientation) {{
 const INSPECTIONS = {insp_json};
 const DEFECTS = {def_json};
 
+Chart.register(ChartDataLabels);
+// Disable datalabels globally — enable per-chart
+Chart.defaults.plugins.datalabels = {{ display: false }};
+
 class Dashboard {{
     constructor() {{ this.charts = {{}}; this.init(); }}
     init() {{
         populateFilter('f-location', uniq(INSPECTIONS, r => r.location));
         populateFilter('f-brand', uniq(INSPECTIONS, r => r.brand));
         populateFilter('f-factory', uniq(INSPECTIONS, r => r.factory));
+        populateFilter('f-ptype', uniq(INSPECTIONS, r => r.productType).filter(v=>v));
         populateFilter('f-month', uniq(INSPECTIONS, r => monthKey(r.inspDate)).reverse());
         populateFilter('f-po', uniq(INSPECTIONS, r => r.poNo));
         populateFilter('f-style', uniq(INSPECTIONS, r => r.style));
@@ -668,10 +978,11 @@ class Dashboard {{
         this.apply();
     }}
     getFiltered() {{
-        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
+        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
         const insp = INSPECTIONS.filter(r => {{
             if(fl&&r.location!==fl) return false; if(fb&&r.brand!==fb) return false;
-            if(ff&&r.factory!==ff) return false; if(fm&&monthKey(r.inspDate)!==fm) return false;
+            if(ff&&r.factory!==ff) return false; if(fpt&&r.productType!==fpt) return false;
+            if(fm&&monthKey(r.inspDate)!==fm) return false;
             if(fp&&r.poNo!==fp) return false; if(fs&&r.style!==fs) return false; return true;
         }});
         const refs = new Set(insp.map(r=>r.refNo));
@@ -803,6 +1114,9 @@ class Dashboard {{
         this.setKPI('k-pairs', fmt(pairs), `${{insp.length}} lots inspected`);
         this.setKPI('k-shipped', fmt(shipped), `${{pct(shipped,pairs)}}% of total pairs`, shipped<pairs?'bad':'good');
         this.setKPI('k-categories', fmt(cats), topCat?`Top: ${{topCat[0]}} (${{topCat[1]}} pairs)`:'No defects found');
+        const legacyCount=insp.filter(r=>r.reportFormat==='legacy').length;
+        const newCount=insp.filter(r=>r.reportFormat==='new').length;
+        this.setKPI('k-formats', legacyCount+' / '+newCount, legacyCount+' Legacy + '+newCount+' New format');
     }}
     setKPI(id,val,sub,cls) {{
         const el=document.getElementById(id); el.querySelector('.kpi-val').textContent=val;
@@ -810,43 +1124,46 @@ class Dashboard {{
     }}
     renderPassFail(insp) {{
         const pass=insp.filter(r=>r.result==='LOT APPROVED').length, fail=insp.length-pass;
+        const pfTotal=pass+fail;
+        const pfFmt=function(val){{return val+' ('+pct(val,pfTotal)+'%)';}};
+        const pfClr=function(ctx){{return ctx.dataset.backgroundColor[ctx.dataIndex].replace('CC','');}};
         this.chart('c-pf','doughnut',{{labels:['Approved','Rejected'],datasets:[{{data:[pass,fail],backgroundColor:[C.pass+'CC',C.fail+'CC'],borderColor:'#fff',borderWidth:2}}]}},
-        {{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:false,plugins:{{legend:{{position:'bottom',labels:{{usePointStyle:true,padding:12}}}},tooltip:{{callbacks:{{label:ctx=>{{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${{ctx.label}}: ${{ctx.parsed}} (${{pct(ctx.parsed,t)}}%)`;}}}}}}}}}}); }}
+        {{responsive:true,maintainAspectRatio:false,cutout:'60%',animation:false,plugins:{{legend:{{position:'bottom',labels:{{usePointStyle:true,padding:12}}}},tooltip:{{callbacks:{{label:ctx=>{{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${{ctx.label}}: ${{ctx.parsed}} (${{pct(ctx.parsed,t)}}%)`;}}}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,font:{{weight:'bold',size:13}},color:pfClr,formatter:pfFmt}}}}}}); }}
     renderMonthly(insp) {{
         const months=uniq(insp,r=>monthKey(r.inspDate)).sort();
         this.chart('c-monthly','bar',{{labels:months.map(monthLabel),datasets:[
             {{label:'Approved',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4}},
             {{label:'Rejected',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
     }}
     renderDefectCategory(defs) {{
         const cats={{}}; defs.forEach(d=>{{cats[d.defectClass]=(cats[d.defectClass]||0)+d.pairs;}});
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         this.chart('c-defcat','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Defective Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}}]}},
-        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:11}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
     }}
     renderDefectTop(defs) {{
         const descs={{}}; defs.forEach(d=>{{descs[d.description]=(descs[d.description]||0)+d.pairs;}});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,8);
         this.chart('c-deftop','bar',{{labels:sorted.map(s=>s[0]),datasets:[{{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}}]}},
-        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
+        {{responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{{legend:{{display:false}},datalabels:{{display:true,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:11}},color:'#333',formatter:val=>val+' prs'}}}},scales:{{x:{{beginAtZero:true}},y:{{grid:{{display:false}}}}}}}});
     }}
     renderStyleChart(insp) {{
         const styles=uniq(insp,r=>r.style);
         this.chart('c-style','bar',{{labels:styles,datasets:[
             {{label:'Approved',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4}},
             {{label:'Rejected',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{stacked:true,grid:{{display:false}}}},y:{{stacked:true,beginAtZero:true,ticks:{{stepSize:1}}}}}}}});
     }}
     renderMajorVsAllowed(insp) {{
         const labels=insp.map(r=>r.style+' ('+r.color.slice(0,3)+') '+r.inspDate.slice(5));
         this.chart('c-majva','bar',{{labels,datasets:[
             {{label:'Major Found',data:insp.map(r=>r.majorFound),backgroundColor:insp.map(r=>r.majorFound>r.majorMaxAllowed?C.fail+'CC':C.blue+'CC'),borderRadius:4}},
             {{label:'Max Allowed',data:insp.map(r=>r.majorMaxAllowed),type:'line',borderColor:C.red,borderWidth:2,borderDash:[6,3],pointRadius:4,pointBackgroundColor:C.red,fill:false}}
-        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}}}},scales:{{x:{{grid:{{display:false}}}},y:{{beginAtZero:true,ticks:{{stepSize:2}}}}}}}});
+        ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{grid:{{display:false}}}},y:{{beginAtZero:true,ticks:{{stepSize:2}}}}}}}});
     }}
     renderInspectionTable(insp) {{
-        const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
+        const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'productType',l:'Type'}},{{f:'auditor',l:'Auditor'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
         let sortCol='inspDate',sortDir='desc'; const container=document.getElementById('tbl-inspections');
         function render(data) {{
             let h='<table class="dt"><thead><tr>';
@@ -861,7 +1178,7 @@ class Dashboard {{
     renderDefectTable(insp,defs) {{
         const inspMap={{}}; insp.forEach(r=>inspMap[r.refNo]=r);
         const enriched=defs.map(d=>({{...d,style:inspMap[d.refNo]?.style||'',factory:inspMap[d.refNo]?.factory||'',date:inspMap[d.refNo]?.inspDate||'',color:inspMap[d.refNo]?.color||''}}));
-        const cols=[{{f:'date',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'factory',l:'Factory'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'severity',l:'Severity',fmt:'sev'}},{{f:'defectClass',l:'Defect Class'}},{{f:'description',l:'Description'}},{{f:'pairs',l:'Pairs',fmt:'n'}}];
+        const cols=[{{f:'date',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'factory',l:'Factory'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'severity',l:'Severity',fmt:'sev'}},{{f:'defectClass',l:'Defect Class'}},{{f:'classification',l:'Classification'}},{{f:'description',l:'Description'}},{{f:'pairs',l:'Pairs',fmt:'n'}}];
         let sortCol='date',sortDir='desc'; const container=document.getElementById('tbl-defects');
         function render(data) {{
             let h='<table class="dt"><thead><tr>';
@@ -911,7 +1228,30 @@ def main():
         filename = os.path.basename(pdf_path)
         print(f"  Parsing: {filename}")
 
-        inspection, defects = parse_aql_pdf(pdf_path)
+        # ── Auto-detect format ──
+        inspection, defects = None, []
+        try:
+            with pdfplumber.open(pdf_path) as probe:
+                page1_text = probe.pages[0].extract_text() or ''
+                page1_tables = probe.pages[0].extract_tables()
+        except Exception as e:
+            print(f"    WARNING: Could not read: {e}")
+            continue
+
+        is_new_format = 'New Inspection Form' in page1_text
+        has_part1 = any(
+            t and t[0] and t[0][0] and 'part i' in str(t[0][0]).lower()
+            for t in page1_tables
+        )
+
+        if is_new_format:
+            print(f"    [New Inspection Form detected]")
+            inspection, defects = parse_new_inspection_pdf(pdf_path)
+        elif has_part1:
+            inspection, defects = parse_aql_pdf(pdf_path)
+        else:
+            print(f"    WARNING: Unrecognized format — skipping.")
+            continue
 
         if inspection and inspection.get('refNo'):
             # Avoid duplicates by refNo

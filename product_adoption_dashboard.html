@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RefrigiWear — AQL Inspection Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
         :root {
             --bg-primary: #f0f2f5; --bg-card: #ffffff; --bg-header: #0f172a;
@@ -19,7 +20,7 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .header h1 { font-size: 19px; font-weight: 700; letter-spacing: 0.3px; }
         .header h1 span { font-weight: 400; opacity: 0.6; font-size: 13px; margin-left: 8px; }
-        .filters { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 14px; }
+        .filters { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 14px; }
         .fg { display: flex; flex-direction: column; gap: 4px; }
         .fg label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.6); }
         .fg select { padding: 9px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-size: 14px; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
@@ -135,7 +136,7 @@
             body.print-landscape .supplier-card .s-name { font-size: 8px; }
             body.print-landscape .supplier-card .s-rate { font-size: 12px; }
             body.print-landscape .supplier-card .s-detail { font-size: 7px; }
-            body.print-landscape .kpi-row { grid-template-columns: repeat(6, 1fr) !important; gap: 4px; margin-bottom: 4px; }
+            body.print-landscape .kpi-row { grid-template-columns: repeat(7, 1fr) !important; gap: 4px; margin-bottom: 4px; }
             body.print-landscape .kpi { padding: 4px 6px; }
             body.print-landscape .kpi-label { font-size: 6px; }
             body.print-landscape .kpi-val { font-size: 14px; }
@@ -175,7 +176,7 @@
             body.print-portrait .supplier-card .s-name { font-size: 7px; }
             body.print-portrait .supplier-card .s-rate { font-size: 10px; }
             body.print-portrait .supplier-card .s-detail { font-size: 6px; }
-            body.print-portrait .kpi-row { grid-template-columns: repeat(6, 1fr) !important; gap: 3px; margin-bottom: 3px; }
+            body.print-portrait .kpi-row { grid-template-columns: repeat(7, 1fr) !important; gap: 3px; margin-bottom: 3px; }
             body.print-portrait .kpi { padding: 3px 4px; }
             body.print-portrait .kpi-label { font-size: 5px; }
             body.print-portrait .kpi-val { font-size: 11px; }
@@ -222,6 +223,7 @@
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
             <div class="fg"><label>Brand</label><select id="f-brand" onchange="D.apply()"><option value="all">All Brands</option></select></div>
             <div class="fg"><label>Factory</label><select id="f-factory" onchange="D.apply()"><option value="all">All Factories</option></select></div>
+            <div class="fg"><label>Product Type</label><select id="f-ptype" onchange="D.apply()"><option value="all">All Types</option></select></div>
             <div class="fg"><label>Month</label><select id="f-month" onchange="D.apply()"><option value="all">All Months</option></select></div>
             <div class="fg"><label>PO No.</label><select id="f-po" onchange="D.apply()"><option value="all">All POs</option></select></div>
             <div class="fg"><label>Style</label><select id="f-style" onchange="D.apply()"><option value="all">All Styles</option></select></div>
@@ -268,6 +270,7 @@
         <div class="kpi info" id="k-pairs"><div class="kpi-label">Total Pairs in Lot</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi pass" id="k-shipped"><div class="kpi-label">Pairs Approved to Ship</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi warn" id="k-categories"><div class="kpi-label">Defect Categories</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
+        <div class="kpi info" id="k-formats"><div class="kpi-label">Report Sources</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
     </section>
 
     <!-- CHARTS -->
@@ -293,7 +296,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 03:38 PM &middot; 20 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 04:40 PM &middot; 21 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -347,9 +350,46 @@ function exportPDF(orientation) {
 
 const INSPECTIONS = [
   {
+    "inspDate": "2025-12-01",
+    "brand": "RefrigiWear",
+    "auditor": "Brand Auditor",
+    "productType": "Footwear",
+    "factoryCode": "SCE001",
+    "factory": "Linear (Super Champ)",
+    "poNo": "PO3066-1255CBLK",
+    "style": "1255CBLK",
+    "poDate": "2025-06-27",
+    "color": "BLK",
+    "lotSize": 3200,
+    "sampleSize": 125,
+    "majorMaxAllowed": 7,
+    "minorMaxAllowed": 10,
+    "result": "LOT APPROVED",
+    "pairsApproved": 1218,
+    "refNo": "RW-NIF-PO3066-1255CBLK",
+    "majorFound": 3,
+    "minorFound": 2,
+    "shipDate": "",
+    "balanceBefore": 0,
+    "balanceAfter": 0,
+    "timesReworked": 0,
+    "chemMaterials": "N/A",
+    "chemFullShoe": "N/A",
+    "criticalSampleSize": 0,
+    "criticalResult": "N/A",
+    "importantSampleSize": 0,
+    "importantResult": "N/A",
+    "opticalResult": "",
+    "majorPlan": "",
+    "minorPlan": "",
+    "comments": "Quality Acceptable",
+    "reportFormat": "new",
+    "location": "Cambodia"
+  },
+  {
     "refNo": "RW-Petcher-001",
     "inspDate": "2025-08-14",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "Petcher",
     "poDate": "2025-02-24",
     "style": "120CR",
@@ -362,7 +402,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2830",
-    "location": "Unknown",
+    "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
     "criticalSampleSize": 16,
@@ -377,12 +417,16 @@ const INSPECTIONS = [
     "majorFound": 3,
     "minorMaxAllowed": 7,
     "minorFound": 4,
-    "comments": "Factory accepted above issues to improve in Next LOT."
+    "comments": "Factory accepted above issues to improve in Next LOT.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-Petcher-002",
     "inspDate": "2025-08-14",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "Petcher",
     "poDate": "2025-05-19",
     "style": "1250CR",
@@ -395,7 +439,7 @@ const INSPECTIONS = [
     "balanceAfter": 2760,
     "timesReworked": 0,
     "poNo": "2908",
-    "location": "Unknown",
+    "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
     "criticalSampleSize": 25,
@@ -410,12 +454,16 @@ const INSPECTIONS = [
     "majorFound": 10,
     "minorMaxAllowed": 10,
     "minorFound": 7,
-    "comments": "Waterproof label not visible clearly / Not As Per Sample --- Need comments"
+    "comments": "Waterproof label not visible clearly / Not As Per Sample --- Need comments",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-Petcher-003",
     "inspDate": "2025-08-14",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "Petcher",
     "poDate": "2025-05-19",
     "style": "129CR",
@@ -428,7 +476,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2908",
-    "location": "Unknown",
+    "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
     "criticalSampleSize": 16,
@@ -443,12 +491,16 @@ const INSPECTIONS = [
     "majorFound": 4,
     "minorMaxAllowed": 7,
     "minorFound": 3,
-    "comments": "Quality is OK, waterproof woven Label stitching need to improve."
+    "comments": "Quality is OK, waterproof woven Label stitching need to improve.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-008",
     "inspDate": "2025-07-30",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "8931R",
@@ -476,12 +528,16 @@ const INSPECTIONS = [
     "majorFound": 2,
     "minorMaxAllowed": 5,
     "minorFound": 4,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-007",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "7931R",
@@ -509,12 +565,16 @@ const INSPECTIONS = [
     "majorFound": 0,
     "minorMaxAllowed": 5,
     "minorFound": 2,
-    "comments": "Factory Used Wrong Product category content mentioned. Since it is BIB , Label mentioned - JACKET. 100% - walmart accepted."
+    "comments": "Factory Used Wrong Product category content mentioned. Since it is BIB , Label mentioned - JACKET. 100% - walmart accepted.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-002",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "7932R",
@@ -542,12 +602,16 @@ const INSPECTIONS = [
     "majorFound": 3,
     "minorMaxAllowed": 5,
     "minorFound": 5,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-004",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "7933R",
@@ -575,12 +639,16 @@ const INSPECTIONS = [
     "majorFound": 1,
     "minorMaxAllowed": 2,
     "minorFound": 2,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-006",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "7934R",
@@ -608,12 +676,16 @@ const INSPECTIONS = [
     "majorFound": 1,
     "minorMaxAllowed": 2,
     "minorFound": 2,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-003",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "8933R",
@@ -641,12 +713,16 @@ const INSPECTIONS = [
     "majorFound": 0,
     "minorMaxAllowed": 2,
     "minorFound": 2,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-005",
     "inspDate": "2025-07-29",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "8934R",
@@ -674,12 +750,16 @@ const INSPECTIONS = [
     "majorFound": 1,
     "minorMaxAllowed": 2,
     "minorFound": 2,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-FujianGerxing-001",
     "inspDate": "2025-07-28",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "China Fujian Gerxing",
     "poDate": "2025-04-02",
     "style": "8932R",
@@ -707,13 +787,17 @@ const INSPECTIONS = [
     "majorFound": 2,
     "minorMaxAllowed": 5,
     "minorFound": 5,
-    "comments": ""
+    "comments": "",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-20250324-003",
     "inspDate": "2025-03-24",
-    "brand": "REFRIGIWEAR",
-    "factory": "China-Petcher",
+    "brand": "RefrigiWear",
+    "factory": "Petcher",
     "poDate": "2024-11-05",
     "style": "1210CR",
     "color": "BROWN",
@@ -740,13 +824,17 @@ const INSPECTIONS = [
     "majorFound": 7,
     "minorMaxAllowed": 7,
     "minorFound": 2,
-    "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over."
+    "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-20250324-001",
     "inspDate": "2025-03-24",
-    "brand": "REFRIGIWEAR",
-    "factory": "China-Petcher",
+    "brand": "RefrigiWear",
+    "factory": "Petcher",
     "poDate": "2024-11-05",
     "style": "1250CR",
     "color": "BLACK",
@@ -773,12 +861,16 @@ const INSPECTIONS = [
     "majorFound": 4,
     "minorMaxAllowed": 10,
     "minorFound": 4,
-    "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over."
+    "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-20250307-003",
     "inspDate": "2025-03-08",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "CAMBODIA HORIZON",
     "poDate": "2024-11-13",
     "style": "7930",
@@ -791,7 +883,7 @@ const INSPECTIONS = [
     "balanceAfter": 792,
     "timesReworked": 0,
     "poNo": "2718",
-    "location": "Unknown",
+    "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
     "criticalSampleSize": 25,
@@ -806,12 +898,16 @@ const INSPECTIONS = [
     "majorFound": 3,
     "minorMaxAllowed": 10,
     "minorFound": 7,
-    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon Sewing completed 50% of garments. Below is size run from which inspection got performed.\nSML/135;MED/361;LAR/355;XLG/0;2XL/92;3XL/160;4XL/872;5XL/33 = 1208 Pcs, Rest did not packed inside Master cartons.\n5-Back Elastic weaving pleats not uniform / We asked Production people & QC's to note down and work on improvements as it should match the level as Approved Sample."
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon Sewing completed 50% of garments. Below is size run from which inspection got performed.\nSML/135;MED/361;LAR/355;XLG/0;2XL/92;3XL/160;4XL/872;5XL/33 = 1208 Pcs, Rest did not packed inside Master cartons.\n5-Back Elastic weaving pleats not uniform / We asked Production people & QC's to note down and work on improvements as it should match the level as Approved Sample.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-20250307-002",
     "inspDate": "2025-03-08",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "CAMBODIA HORIZON",
     "poDate": "2024-11-13",
     "style": "8930",
@@ -824,7 +920,7 @@ const INSPECTIONS = [
     "balanceAfter": 111,
     "timesReworked": 0,
     "poNo": "2718",
-    "location": "Unknown",
+    "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
     "criticalSampleSize": 25,
@@ -839,12 +935,16 @@ const INSPECTIONS = [
     "majorFound": 3,
     "minorMaxAllowed": 10,
     "minorFound": 4,
-    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon completed / packed 80% of garments. Below is size run from which inspection got performed.\nSML/172;MED/394;LAR/415;XLG/340;2XL/263;3XL/170;4XL/85;5XL/60 = 1899 Pcs, Rest did not packed inside Master cartons."
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon completed / packed 80% of garments. Below is size run from which inspection got performed.\nSML/172;MED/394;LAR/415;XLG/340;2XL/263;3XL/170;4XL/85;5XL/60 = 1899 Pcs, Rest did not packed inside Master cartons.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-20250307-001",
     "inspDate": "2025-03-07",
-    "brand": "REFRIGIWEAR",
+    "brand": "RefrigiWear",
     "factory": "CAMBODIA HORIZON",
     "poDate": "2024-11-13",
     "style": "8935",
@@ -857,7 +957,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2718",
-    "location": "Unknown",
+    "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
     "criticalSampleSize": 25,
@@ -872,7 +972,11 @@ const INSPECTIONS = [
     "majorFound": 5,
     "minorMaxAllowed": 10,
     "minorFound": 2,
-    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack."
+    "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-004",
@@ -905,7 +1009,11 @@ const INSPECTIONS = [
     "majorFound": 14,
     "minorMaxAllowed": 8,
     "minorFound": 2,
-    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nLabel misprinting must be checked and shoud not use it in garments"
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nLabel misprinting must be checked and shoud not use it in garments",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-001",
@@ -938,7 +1046,11 @@ const INSPECTIONS = [
     "majorFound": 5,
     "minorMaxAllowed": 8,
     "minorFound": 6,
-    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments"
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-002",
@@ -971,7 +1083,11 @@ const INSPECTIONS = [
     "majorFound": 3,
     "minorMaxAllowed": 5,
     "minorFound": 4,
-    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments"
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   },
   {
     "refNo": "RW-003",
@@ -1004,7 +1120,11 @@ const INSPECTIONS = [
     "majorFound": 17,
     "minorMaxAllowed": 8,
     "minorFound": 4,
-    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nWhite marker makring not clean underneath straps component in some garments"
+    "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nWhite marker makring not clean underneath straps component in some garments",
+    "productType": "",
+    "factoryCode": "",
+    "auditor": "",
+    "reportFormat": "legacy"
   }
 ];
 const DEFECTS = [
@@ -1013,90 +1133,127 @@ const DEFECTS = [
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Reflective tape surface scratched",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-003",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Creased Reflective tape",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-003",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Stains on Garment/Poor Cleanliness",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-003",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Stitching defects that affect appearance",
-    "pairs": 3
+    "pairs": 3,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-003",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-002",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Reflective tape mispositioned",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-002",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching defects that affect appearance",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-002",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Stains on Garment/Poor Cleanliness",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-002",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-001",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Stains on Garment/Poor Cleanliness",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-001",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Reflective tape surface scratched",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-001",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Exposed Insulation Fibres",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250307-001",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Exposed Insulation Fibres",
+    "pairs": 2,
+    "classification": ""
+  },
+  {
+    "refNo": "RW-NIF-PO3066-1255CBLK",
+    "severity": "Major",
+    "defectClass": "Esthetic Look - Brand Logo",
+    "classification": "Color || Size || Dimension",
+    "description": "Scratch near Logo",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-NIF-PO3066-1255CBLK",
+    "severity": "Major",
+    "defectClass": "Fitting - Dimension",
+    "classification": "Beyond Tolerance || Deviation",
+    "description": "Back Height Variation",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-NIF-PO3066-1255CBLK",
+    "severity": "Minor",
+    "defectClass": "Fitting - Dimension",
+    "classification": "Beyond Tolerance || Deviation",
+    "description": "Outsole width Variation",
     "pairs": 2
   },
   {
@@ -1104,450 +1261,518 @@ const DEFECTS = [
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-002",
     "severity": "Major",
     "defectClass": "Esthetic_Look_外观",
     "description": "Upper Surface Defect 表面瑕疵 Fabric surface defect",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-002",
     "severity": "Major",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Missing bar Tack stitch",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-002",
     "severity": "Minor",
     "defectClass": "Fabric_Defects_布料瑕疵",
     "description": "Fabric defects that compromise strength or durability/影响强度的布料瑕疵",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-002",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads",
-    "pairs": 3
+    "pairs": 3,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-004",
     "severity": "Major",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Front panel misaligned",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-004",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Button misaliged",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-004",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-006",
     "severity": "Major",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Front panel misaligned",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-006",
     "severity": "Minor",
     "defectClass": "Fabric_Defects_布料瑕疵 Fabr",
     "description": "ic defects that compromise strength or durability/影响强度的布料 瑕疵",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-006",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-008",
     "severity": "Major",
     "defectClass": "Esthetic_Look_外观",
     "description": "Grain/Shade Mismatch 纹理/色差 Grip Dot Pattern not as per Original",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-008",
     "severity": "Minor",
     "defectClass": "Esthetic_Look_外观",
     "description": "Grain/Shade Mismatch 纹理/色差 Grip Dot Pattern not as per Original",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-008",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-001",
     "severity": "Major",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-001",
     "severity": "Minor",
     "defectClass": "Esthetic_Look_外观",
     "description": "Stains on Garment/Poor Cleanliness 成衣污渍/ 清洁度 Vanishing Pen marks visible",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-001",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Stitching defects that affect appearance/车线瑕疵影响外观 Reflective Tape waviness",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-001",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-003",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-005",
     "severity": "Major",
     "defectClass": "Fabric_Defects_布料瑕疵 Fabr",
     "description": "ic defects that compromise strength or durability/影响强度的布料 瑕疵",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-FujianGerxing-005",
     "severity": "Minor",
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-001",
     "severity": "Major",
     "defectClass": "Lasting",
     "description": "Wrinkles on Toe/Upper",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-001",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Scratches on Quarter Panel",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-001",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Upper Surface Defect Toe cap impression",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-001",
     "severity": "Minor",
     "defectClass": "Lasting",
     "description": "Toe/Mudguard Height Mismatch",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-001",
     "severity": "Minor",
     "defectClass": "Lasting",
     "description": "Finish/Shade Variation",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-002",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching Defect Waterproof label not visible clearly / Not As Per Sample",
-    "pairs": 5
+    "pairs": 5,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-002",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching Defect Reflective piping missing / Width inconsistent",
-    "pairs": 5
+    "pairs": 5,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-002",
     "severity": "Minor",
     "defectClass": "Lasting",
     "description": "Crooked Toe/Saddle",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-002",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Stitching Defect Waterproof label not visible clearly",
-    "pairs": 5
+    "pairs": 5,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-003",
     "severity": "Major",
     "defectClass": "Lasting",
     "description": "Toe/Mudguard Height Mismatch",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-003",
     "severity": "Major",
     "defectClass": "Packing and Labeling",
     "description": "Improper Stuffing",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-003",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Stitching Defect Waterproof Woven Label - Not visible clearly",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-003",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Fraying Edges",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-Petcher-003",
     "severity": "Minor",
     "defectClass": "Packing and Labeling",
     "description": "Improper Stuffing",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-003",
     "severity": "Major",
     "defectClass": "Packing and Labeling",
     "description": "Improper Stuffing",
-    "pairs": 3
+    "pairs": 3,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-003",
     "severity": "Major",
     "defectClass": "Lasting",
     "description": "Wrinkles on Toe/Upper",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-003",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Grain/Shade Mismatch",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-003",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Fraying Edges",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Major",
     "defectClass": "Lasting",
     "description": "Toe/Mudguard Height Mismatch",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching Defect",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Major",
     "defectClass": "Lasting",
     "description": "Wrinkles on Toe/Upper",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Stitching Defect Misposition / Not align center",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Stains on Upper/Poor Cleanliness",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-20250324-001",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Stitching Defect Overlapping stitch",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Brand Logo RW woven Logo Uneven Edges",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Major",
     "defectClass": "Fabric Defects",
     "description": "Fabric defects that compromise strength or durability Folding Impression on lining inside",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Major",
     "defectClass": "Packing and Labeling",
     "description": "Printing errors on labels",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads Long Loose threads End",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads Cuffs Loose threads End",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-001",
     "severity": "Minor",
     "defectClass": "Packing and Labeling",
     "description": "Small printing defects on labels",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-002",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Brand Logo RW woven Logo Uneven Edges",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-002",
     "severity": "Major",
     "defectClass": "Fabric Defects",
     "description": "Fabric defects that compromise strength or durability Folding Impression on lining inside",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-002",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads Inside Collar Loose threads End",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-002",
     "severity": "Minor",
     "defectClass": "Stitching",
     "description": "Loose threads Armpit Loose threads End",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-004",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Brand Logo RW woven Logo Uneven Edges",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-004",
     "severity": "Major",
     "defectClass": "Fabric Defects",
     "description": "Fabric defects that compromise strength or durability Folding Impression on lining inside",
-    "pairs": 1
+    "pairs": 1,
+    "classification": ""
   },
   {
     "refNo": "RW-004",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Uneven stitches Box stitch width Not as per Original Sample",
-    "pairs": 7
+    "pairs": 7,
+    "classification": ""
   },
   {
     "refNo": "RW-004",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching defects that affect appearance Elastic Pleats formity not as per Orginal Sample",
-    "pairs": 4
+    "pairs": 4,
+    "classification": ""
   },
   {
     "refNo": "RW-004",
     "severity": "Minor",
     "defectClass": "Packing and Labeling",
     "description": "Printing errors on labels PO Misprinted on Label",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-003",
     "severity": "Major",
     "defectClass": "Esthetic Look",
     "description": "Brand Logo RW woven Logo Uneven Edges",
-    "pairs": 2
+    "pairs": 2,
+    "classification": ""
   },
   {
     "refNo": "RW-003",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Uneven stitches Box stitch width Not as per Original Sample",
-    "pairs": 11
+    "pairs": 11,
+    "classification": ""
   },
   {
     "refNo": "RW-003",
     "severity": "Major",
     "defectClass": "Stitching",
     "description": "Stitching defects that affect appearance Elastic Pleats formity not as per Orginal Sample",
-    "pairs": 4
+    "pairs": 4,
+    "classification": ""
   },
   {
     "refNo": "RW-003",
     "severity": "Minor",
     "defectClass": "Esthetic Look",
     "description": "Stains on Garment/Poor Cleanliness White Marking Visible",
-    "pairs": 4
+    "pairs": 4,
+    "classification": ""
   }
 ];
+
+Chart.register(ChartDataLabels);
+// Disable datalabels globally — enable per-chart
+Chart.defaults.plugins.datalabels = { display: false };
 
 class Dashboard {
     constructor() { this.charts = {}; this.init(); }
@@ -1555,6 +1780,7 @@ class Dashboard {
         populateFilter('f-location', uniq(INSPECTIONS, r => r.location));
         populateFilter('f-brand', uniq(INSPECTIONS, r => r.brand));
         populateFilter('f-factory', uniq(INSPECTIONS, r => r.factory));
+        populateFilter('f-ptype', uniq(INSPECTIONS, r => r.productType).filter(v=>v));
         populateFilter('f-month', uniq(INSPECTIONS, r => monthKey(r.inspDate)).reverse());
         populateFilter('f-po', uniq(INSPECTIONS, r => r.poNo));
         populateFilter('f-style', uniq(INSPECTIONS, r => r.style));
@@ -1563,10 +1789,11 @@ class Dashboard {
         this.apply();
     }
     getFiltered() {
-        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
+        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
         const insp = INSPECTIONS.filter(r => {
             if(fl&&r.location!==fl) return false; if(fb&&r.brand!==fb) return false;
-            if(ff&&r.factory!==ff) return false; if(fm&&monthKey(r.inspDate)!==fm) return false;
+            if(ff&&r.factory!==ff) return false; if(fpt&&r.productType!==fpt) return false;
+            if(fm&&monthKey(r.inspDate)!==fm) return false;
             if(fp&&r.poNo!==fp) return false; if(fs&&r.style!==fs) return false; return true;
         });
         const refs = new Set(insp.map(r=>r.refNo));
@@ -1698,6 +1925,9 @@ class Dashboard {
         this.setKPI('k-pairs', fmt(pairs), `${insp.length} lots inspected`);
         this.setKPI('k-shipped', fmt(shipped), `${pct(shipped,pairs)}% of total pairs`, shipped<pairs?'bad':'good');
         this.setKPI('k-categories', fmt(cats), topCat?`Top: ${topCat[0]} (${topCat[1]} pairs)`:'No defects found');
+        const legacyCount=insp.filter(r=>r.reportFormat==='legacy').length;
+        const newCount=insp.filter(r=>r.reportFormat==='new').length;
+        this.setKPI('k-formats', legacyCount+' / '+newCount, legacyCount+' Legacy + '+newCount+' New format');
     }
     setKPI(id,val,sub,cls) {
         const el=document.getElementById(id); el.querySelector('.kpi-val').textContent=val;
@@ -1705,43 +1935,46 @@ class Dashboard {
     }
     renderPassFail(insp) {
         const pass=insp.filter(r=>r.result==='LOT APPROVED').length, fail=insp.length-pass;
+        const pfTotal=pass+fail;
+        const pfFmt=function(val){return val+' ('+pct(val,pfTotal)+'%)';};
+        const pfClr=function(ctx){return ctx.dataset.backgroundColor[ctx.dataIndex].replace('CC','');};
         this.chart('c-pf','doughnut',{labels:['Approved','Rejected'],datasets:[{data:[pass,fail],backgroundColor:[C.pass+'CC',C.fail+'CC'],borderColor:'#fff',borderWidth:2}]},
-        {responsive:true,maintainAspectRatio:false,cutout:'60%',animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12}},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${ctx.parsed} (${pct(ctx.parsed,t)}%)`;}}}}}); }
+        {responsive:true,maintainAspectRatio:false,cutout:'60%',animation:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:12}},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0);return `${ctx.label}: ${ctx.parsed} (${pct(ctx.parsed,t)}%)`;}}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:6,font:{weight:'bold',size:13},color:pfClr,formatter:pfFmt}}}); }
     renderMonthly(insp) {
         const months=uniq(insp,r=>monthKey(r.inspDate)).sort();
         this.chart('c-monthly','bar',{labels:months.map(monthLabel),datasets:[
             {label:'Approved',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4},
             {label:'Rejected',data:months.map(m=>insp.filter(r=>monthKey(r.inspDate)===m&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}});
     }
     renderDefectCategory(defs) {
         const cats={}; defs.forEach(d=>{cats[d.defectClass]=(cats[d.defectClass]||0)+d.pairs;});
         const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
         this.chart('c-defcat','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Defective Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{grid:{display:false}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true},y:{grid:{display:false}}}});
     }
     renderDefectTop(defs) {
         const descs={}; defs.forEach(d=>{descs[d.description]=(descs[d.description]||0)+d.pairs;});
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,8);
         this.chart('c-deftop','bar',{labels:sorted.map(s=>s[0]),datasets:[{label:'Pairs',data:sorted.map(s=>s[1]),backgroundColor:PALETTE.map(c=>c+'CC'),borderRadius:4}]},
-        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{grid:{display:false}}}});
+        {responsive:true,maintainAspectRatio:false,indexAxis:'y',animation:false,plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'end',offset:4,font:{weight:'bold',size:11},color:'#333',formatter:val=>val+' prs'}},scales:{x:{beginAtZero:true},y:{grid:{display:false}}}});
     }
     renderStyleChart(insp) {
         const styles=uniq(insp,r=>r.style);
         this.chart('c-style','bar',{labels:styles,datasets:[
             {label:'Approved',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT APPROVED').length),backgroundColor:C.pass+'BB',borderRadius:4},
             {label:'Rejected',data:styles.map(s=>insp.filter(r=>r.style===s&&r.result==='LOT REJECTED').length),backgroundColor:C.fail+'BB',borderRadius:4}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}},datalabels:{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,ticks:{stepSize:1}}}});
     }
     renderMajorVsAllowed(insp) {
         const labels=insp.map(r=>r.style+' ('+r.color.slice(0,3)+') '+r.inspDate.slice(5));
         this.chart('c-majva','bar',{labels,datasets:[
             {label:'Major Found',data:insp.map(r=>r.majorFound),backgroundColor:insp.map(r=>r.majorFound>r.majorMaxAllowed?C.fail+'CC':C.blue+'CC'),borderRadius:4},
             {label:'Max Allowed',data:insp.map(r=>r.majorMaxAllowed),type:'line',borderColor:C.red,borderWidth:2,borderDash:[6,3],pointRadius:4,pointBackgroundColor:C.red,fill:false}
-        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:2}}}});
+        ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}},datalabels:{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:2}}}});
     }
     renderInspectionTable(insp) {
-        const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
+        const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'productType',l:'Type'},{f:'auditor',l:'Auditor'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
         let sortCol='inspDate',sortDir='desc'; const container=document.getElementById('tbl-inspections');
         function render(data) {
             let h='<table class="dt"><thead><tr>';
@@ -1756,7 +1989,7 @@ class Dashboard {
     renderDefectTable(insp,defs) {
         const inspMap={}; insp.forEach(r=>inspMap[r.refNo]=r);
         const enriched=defs.map(d=>({...d,style:inspMap[d.refNo]?.style||'',factory:inspMap[d.refNo]?.factory||'',date:inspMap[d.refNo]?.inspDate||'',color:inspMap[d.refNo]?.color||''}));
-        const cols=[{f:'date',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'factory',l:'Factory'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'severity',l:'Severity',fmt:'sev'},{f:'defectClass',l:'Defect Class'},{f:'description',l:'Description'},{f:'pairs',l:'Pairs',fmt:'n'}];
+        const cols=[{f:'date',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'factory',l:'Factory'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'severity',l:'Severity',fmt:'sev'},{f:'defectClass',l:'Defect Class'},{f:'classification',l:'Classification'},{f:'description',l:'Description'},{f:'pairs',l:'Pairs',fmt:'n'}];
         let sortCol='date',sortDir='desc'; const container=document.getElementById('tbl-defects');
         function render(data) {
             let h='<table class="dt"><thead><tr>';
