@@ -30,41 +30,184 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_HTML = os.path.join(SCRIPT_DIR, "product_adoption_dashboard.html")
 
+# ══════════════════════════════════════════════════════════════════════
+#  VENDOR DATABASE — Master list from RefrigiWear vendor CSV
+#  Each entry: code → { name (canonical), country, region }
+# ══════════════════════════════════════════════════════════════════════
+VENDOR_DB = {
+    'ACI001': {'name': 'ACI Exports Private Limited',       'country': 'India',    'region': 'Asia'},
+    'DTV001': {'name': 'Dekalb Trade Voice',                'country': 'Pakistan', 'region': 'Asia'},
+    'EAA002': {'name': 'Ethical Apparel Africa (EAA)',       'country': 'Ghana',    'region': 'Africa'},
+    'ERI001': {'name': 'Eria Textiles',                     'country': 'Albania',  'region': 'Europe'},
+    'FCM001': {'name': 'Shifan Race Wear',                  'country': 'Pakistan', 'region': 'Asia'},
+    'FUJ001': {'name': 'Fuzhou Gerxing Garments Co Ltd',    'country': 'China',    'region': 'Asia'},
+    'FUZ010': {'name': 'Fuzhou Leadfine Team',              'country': 'China',    'region': 'Asia'},
+    'FXO001': {'name': 'Fujian Xianghong Outdoor Products', 'country': 'China',    'region': 'Asia'},
+    'GCG001': {'name': 'GC Garment PTE Ltd',                'country': 'Cambodia', 'region': 'Asia'},
+    'HYG002': {'name': 'Hygloves Co. Ltd.',                 'country': 'China',    'region': 'Asia'},
+    'HYG005': {'name': 'Hygloves Manufacture PVT LTD',      'country': 'Pakistan', 'region': 'Asia'},
+    'HZN001': {'name': 'Horizon Outdoor-Galaxy International', 'country': 'Cambodia', 'region': 'Asia'},
+    'IHS001': {'name': 'IHSAN Sons (Pvt) Ltd',              'country': 'Pakistan', 'region': 'Asia'},
+    'JIA001': {'name': 'Jiangsu Hanyao Medical Devices',    'country': 'China',    'region': 'Asia'},
+    'LYF001': {'name': 'Li Yuen Footwear Manu. Co. LTD',   'country': 'Cambodia', 'region': 'Asia'},
+    'MAL002': {'name': 'Malik Tanning Industries',          'country': 'India',    'region': 'Asia'},
+    'MIC001': {'name': 'Mimasu Industries (Cambodia)',       'country': 'Cambodia', 'region': 'Asia'},
+    'MIL001': {'name': 'Mallcom India Limited',             'country': 'India',    'region': 'Asia'},
+    'MML001': {'name': 'Skivish Limited',                   'country': 'Vietnam',  'region': 'Asia'},
+    'PGS001': {'name': 'PGS Group LTD',                     'country': 'China',    'region': 'Asia'},
+    'QIN001': {'name': 'Qingdao YSD Plastic Rubber Co.',    'country': 'China',    'region': 'Asia'},
+    'QIN002': {'name': 'Qingdao Vitosafe Footwear Co.',     'country': 'China',    'region': 'Asia'},
+    'QIN003': {'name': 'Qingdao Goldmyk Industrial Co.',    'country': 'China',    'region': 'Asia'},
+    'SCE001': {'name': 'Super Champ Enterprises Inc',       'country': 'Cambodia', 'region': 'Asia'},
+    'SGI001': {'name': 'Super Guard Industry Co',           'country': 'China',    'region': 'Asia'},
+    'SHA005': {'name': 'Shangyu Best Apparel & Accessories', 'country': 'China',    'region': 'Asia'},
+    'SHI005': {'name': 'Laos Tiantai Industry Co Ltd',      'country': 'Laos',     'region': 'Southeast Asia'},
+    'SME001': {'name': 'S.M. Exports',                      'country': 'India',    'region': 'Asia'},
+    'THO001': {'name': 'Thousand Oaks Corp',                'country': 'China',    'region': 'Asia'},
+    'TOP001': {'name': 'New Magma LTD.',                    'country': 'China',    'region': 'Asia'},
+    'TPI001': {'name': 'TP-TMVI Bac Giang Province',        'country': 'Vietnam',  'region': 'Asia'},
+    'TPI002': {'name': 'TP-TMVT Thanh Hoa Province',        'country': 'Vietnam',  'region': 'Asia'},
+    'TRU001': {'name': 'Trumar Ayakkabi',                   'country': 'Turkey',   'region': 'West Asia'},
+    'XIN001': {'name': 'Xin Ang Shoes (Cambodia)',          'country': 'Cambodia', 'region': 'Asia'},
+}
+
+# Reverse lookup: lowercase factory name substring → vendor code
+# Used to resolve vendor code from factory name when code isn't directly available
+_VENDOR_NAME_TO_CODE = {}
+for _code, _info in VENDOR_DB.items():
+    _VENDOR_NAME_TO_CODE[_info['name'].lower()] = _code
+# Additional keyword aliases for matching PDF factory names to vendor codes
+_VENDOR_KEYWORD_ALIASES = {
+    'fujian gerxing':   'FUJ001',
+    'fuzhou gerxing':   'FUJ001',
+    'gerxing':          'FUJ001',
+    'petcher':          'PGS001',    # Petcher = PGS Group LTD
+    'sampada':          'SME001',    # Sampada uses S.M. Exports code
+    'cambodia horizon': 'HZN001',
+    'horizon outdoor':  'HZN001',
+    'horizon-galaxy':   'HZN001',
+    'galaxy international': 'HZN001',
+    'linear':           'SCE001',
+    'super champ':      'SCE001',
+    'hygloves':         'HYG002',
+    'mallcom':          'MIL001',
+    'qingdao ysd':      'QIN001',
+    'qingdao vitosafe': 'QIN002',
+    'qingdao goldmyk':  'QIN003',
+    'thousand oaks':    'THO001',
+    'new magma':        'TOP001',
+    'shifan':           'FCM001',
+    'eria':             'ERI001',
+    'ihsan':            'IHS001',
+    'skivish':          'MML001',
+    'super guard':      'SGI001',
+    'shangyu':          'SHA005',
+    'tiantai':          'SHI005',
+    'trumar':           'TRU001',
+    'xin ang':          'XIN001',
+    'mimasu':           'MIC001',
+    'gc garment':       'GCG001',
+    'li yuen':          'LYF001',
+    'leadfine':         'FUZ010',
+    'xianghong':        'FXO001',
+    'hanyao':           'JIA001',
+    'malik':            'MAL002',
+    'dekalb':           'DTV001',
+    'ethical apparel':  'EAA002',
+    'aci exports':      'ACI001',
+}
+
 # ── Factory name normalization ──
 # Maps variations of the same factory to one canonical name.
 # The key is a lowercase substring to match; the value is the canonical name.
 # Order matters — first match wins, so put more specific patterns first.
 FACTORY_ALIASES = {
-    'fujian gerxing':   'China Fujian Gerxing',
-    'petcher':          'Petcher',
-    'sampada':          'Sampada Export, Gurugram, India',
-    'cambodia horizon': 'CAMBODIA HORIZON',
-    'linear':           'Linear (Super Champ)',
-    'super champ':      'Linear (Super Champ)',
-    'sce001':           'Linear (Super Champ)',
+    'fujian gerxing':   'Fuzhou Gerxing Garments Co Ltd',
+    'fuzhou gerxing':   'Fuzhou Gerxing Garments Co Ltd',
+    'gerxing':          'Fuzhou Gerxing Garments Co Ltd',
+    'petcher':          'PGS Group LTD',
+    'pgs group':        'PGS Group LTD',
+    'sampada':          'S.M. Exports',
+    'cambodia horizon': 'Horizon Outdoor-Galaxy International',
+    'horizon outdoor':  'Horizon Outdoor-Galaxy International',
+    'horizon-galaxy':   'Horizon Outdoor-Galaxy International',
+    'galaxy international': 'Horizon Outdoor-Galaxy International',
+    'linear':           'Super Champ Enterprises Inc',
+    'super champ':      'Super Champ Enterprises Inc',
+    'sce001':           'Super Champ Enterprises Inc',
+    'hygloves':         'Hygloves Co. Ltd.',
+    'mallcom':          'Mallcom India Limited',
+    'thousand oaks':    'Thousand Oaks Corp',
+    'new magma':        'New Magma LTD.',
+    'shifan':           'Shifan Race Wear',
+    'eria':             'Eria Textiles',
+    'ihsan':            'IHSAN Sons (Pvt) Ltd',
+    'skivish':          'Skivish Limited',
+    'super guard':      'Super Guard Industry Co',
+    'shangyu':          'Shangyu Best Apparel & Accessories',
+    'tiantai':          'Laos Tiantai Industry Co Ltd',
+    'trumar':           'Trumar Ayakkabi',
+    'xin ang':          'Xin Ang Shoes (Cambodia)',
+    'mimasu':           'Mimasu Industries (Cambodia)',
+    'gc garment':       'GC Garment PTE Ltd',
+    'li yuen':          'Li Yuen Footwear Manu. Co. LTD',
+    'leadfine':         'Fuzhou Leadfine Team',
+    'xianghong':        'Fujian Xianghong Outdoor Products',
+    'hanyao':           'Jiangsu Hanyao Medical Devices',
+    'malik':            'Malik Tanning Industries',
+    'dekalb':           'Dekalb Trade Voice',
+    'ethical apparel':  'Ethical Apparel Africa (EAA)',
+    'aci exports':      'ACI Exports Private Limited',
+    'qingdao ysd':      'Qingdao YSD Plastic Rubber Co.',
+    'qingdao vitosafe': 'Qingdao Vitosafe Footwear Co.',
+    'qingdao goldmyk':  'Qingdao Goldmyk Industrial Co.',
 }
 
 # Maps canonical factory name → country location.
-# Add new factories here as you onboard them.
-FACTORY_LOCATIONS = {
-    'Petcher':                         'China',
-    'China Fujian Gerxing':            'China',
-    'CAMBODIA HORIZON':                'Cambodia',
-    'Sampada Export, Gurugram, India':  'India',
-    'Linear (Super Champ)':            'Cambodia',
-}
+# Auto-built from VENDOR_DB — no manual maintenance needed.
+FACTORY_LOCATIONS = {info['name']: info['country'] for info in VENDOR_DB.values()}
 
 # Maps variations of brand names to one canonical name.
 BRAND_ALIASES = {
     'refrigiwear': 'RefrigiWear',
 }
 
+def resolve_vendor_code(factory_name, factory_code=''):
+    """Resolve the vendor code for a factory. Tries direct code match first,
+    then keyword matching against the factory name."""
+    # 1. If factory_code is already a valid vendor code, use it
+    code_upper = factory_code.strip().upper()
+    if code_upper in VENDOR_DB:
+        return code_upper
+    # 1b. If factory_name itself is a vendor code
+    name_upper = factory_name.strip().upper()
+    if name_upper in VENDOR_DB:
+        return name_upper
+    # 2. Try keyword matching against factory name
+    lower = factory_name.lower()
+    for keyword, code in _VENDOR_KEYWORD_ALIASES.items():
+        if keyword in lower:
+            return code
+    # 3. Try fuzzy match against full vendor names
+    for full_name, code in _VENDOR_NAME_TO_CODE.items():
+        if full_name in lower or lower in full_name:
+            return code
+    return ''
+
 def normalize_factory(raw_name):
-    """Return a canonical factory name by matching known aliases."""
+    """Return a canonical factory name by matching known aliases or vendor codes."""
+    # Check if raw_name is itself a vendor code (e.g. "MIL001" from PDF filenames)
+    upper = raw_name.strip().upper()
+    if upper in VENDOR_DB:
+        return VENDOR_DB[upper]['name']
     lower = raw_name.lower()
     for pattern, canonical in FACTORY_ALIASES.items():
         if pattern in lower:
             return canonical
+    # Try matching against VENDOR_DB names directly
+    for info in VENDOR_DB.values():
+        if info['name'].lower() in lower or lower in info['name'].lower():
+            return info['name']
     return raw_name  # no alias matched — keep original
 
 def normalize_brand(raw_name):
@@ -155,9 +298,13 @@ def parse_aql_pdf(filepath):
                     inspection['poNo'] = str(row[i + 1]).strip()
                 break
 
-    # Derive location — check FACTORY_LOCATIONS first, then guess from name
+    # Resolve vendor code and location from VENDOR_DB
     factory = inspection.get('factory', '')
-    if factory in FACTORY_LOCATIONS:
+    vcode = resolve_vendor_code(factory, inspection.get('factoryCode', ''))
+    inspection['vendorCode'] = vcode
+    if vcode and vcode in VENDOR_DB:
+        inspection['location'] = VENDOR_DB[vcode]['country']
+    elif factory in FACTORY_LOCATIONS:
         inspection['location'] = FACTORY_LOCATIONS[factory]
     elif 'china' in factory.lower():
         inspection['location'] = 'China'
@@ -280,7 +427,8 @@ def parse_aql_pdf(filepath):
 
     # ── New unified fields (defaults for legacy format) ──
     inspection['productType'] = ''
-    inspection['factoryCode'] = ''
+    if 'factoryCode' not in inspection or not inspection['factoryCode']:
+        inspection['factoryCode'] = inspection.get('vendorCode', '')
     inspection['auditor'] = ''
     inspection['reportFormat'] = 'legacy'
 
@@ -514,13 +662,17 @@ def parse_new_inspection_pdf(filepath):
     inspection['comments'] = extract_text_field(all_text, 'Comment/Remarks #')
     inspection['reportFormat'] = 'new'
 
-    # ── Derive location ──
+    # ── Resolve vendor code and location from VENDOR_DB ──
     factory = inspection.get('factory', '')
-    if factory in FACTORY_LOCATIONS:
+    vcode = resolve_vendor_code(factory, inspection.get('factoryCode', ''))
+    inspection['vendorCode'] = vcode
+    if vcode and vcode in VENDOR_DB:
+        inspection['location'] = VENDOR_DB[vcode]['country']
+    elif factory in FACTORY_LOCATIONS:
         inspection['location'] = FACTORY_LOCATIONS[factory]
     elif 'china' in factory.lower():
         inspection['location'] = 'China'
-    elif 'cambodia' in factory.lower() or 'kh' in all_text.lower().split('filepath')[1][:50] if 'filepath' in all_text.lower() else False:
+    elif 'cambodia' in factory.lower():
         inspection['location'] = 'Cambodia'
     elif 'vietnam' in factory.lower():
         inspection['location'] = 'Vietnam'
@@ -637,7 +789,7 @@ def generate_dashboard_html(inspections, defects):
         .header-top {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }}
         .header h1 {{ font-size: 19px; font-weight: 700; letter-spacing: 0.3px; }}
         .header h1 span {{ font-weight: 400; opacity: 0.6; font-size: 13px; margin-left: 8px; }}
-        .filters {{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 14px; }}
+        .filters {{ display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-top: 14px; }}
         .fg {{ display: flex; flex-direction: column; gap: 4px; }}
         .fg label {{ font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.6); }}
         .fg select {{ padding: 9px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-size: 14px; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }}
@@ -753,7 +905,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-landscape .supplier-card .s-name {{ font-size: 8px; }}
             body.print-landscape .supplier-card .s-rate {{ font-size: 12px; }}
             body.print-landscape .supplier-card .s-detail {{ font-size: 7px; }}
-            body.print-landscape .kpi-row {{ grid-template-columns: repeat(7, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
+            body.print-landscape .kpi-row {{ grid-template-columns: repeat(8, 1fr) !important; gap: 4px; margin-bottom: 4px; }}
             body.print-landscape .kpi {{ padding: 4px 6px; }}
             body.print-landscape .kpi-label {{ font-size: 6px; }}
             body.print-landscape .kpi-val {{ font-size: 14px; }}
@@ -793,7 +945,7 @@ def generate_dashboard_html(inspections, defects):
             body.print-portrait .supplier-card .s-name {{ font-size: 7px; }}
             body.print-portrait .supplier-card .s-rate {{ font-size: 10px; }}
             body.print-portrait .supplier-card .s-detail {{ font-size: 6px; }}
-            body.print-portrait .kpi-row {{ grid-template-columns: repeat(7, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
+            body.print-portrait .kpi-row {{ grid-template-columns: repeat(8, 1fr) !important; gap: 3px; margin-bottom: 3px; }}
             body.print-portrait .kpi {{ padding: 3px 4px; }}
             body.print-portrait .kpi-label {{ font-size: 5px; }}
             body.print-portrait .kpi-val {{ font-size: 11px; }}
@@ -839,6 +991,7 @@ def generate_dashboard_html(inspections, defects):
         <div class="filters">
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
             <div class="fg"><label>Brand</label><select id="f-brand" onchange="D.apply()"><option value="all">All Brands</option></select></div>
+            <div class="fg"><label>Vendor Code</label><select id="f-vcode" onchange="D.apply()"><option value="all">All Vendors</option></select></div>
             <div class="fg"><label>Factory</label><select id="f-factory" onchange="D.apply()"><option value="all">All Factories</option></select></div>
             <div class="fg"><label>Product Type</label><select id="f-ptype" onchange="D.apply()"><option value="all">All Types</option></select></div>
             <div class="fg"><label>Month</label><select id="f-month" onchange="D.apply()"><option value="all">All Months</option></select></div>
@@ -887,7 +1040,7 @@ def generate_dashboard_html(inspections, defects):
         <div class="kpi info" id="k-pairs"><div class="kpi-label">Total Pairs in Lot</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi pass" id="k-shipped"><div class="kpi-label">Pairs Approved to Ship</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi warn" id="k-categories"><div class="kpi-label">Defect Categories</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
-        <div class="kpi info" id="k-formats"><div class="kpi-label">Report Sources</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
+        <div class="kpi info" id="k-vendors"><div class="kpi-label">Vendor Codes</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
     </section>
 
     <!-- CHARTS -->
@@ -977,6 +1130,7 @@ class Dashboard {{
     init() {{
         populateFilter('f-location', uniq(INSPECTIONS, r => r.location));
         populateFilter('f-brand', uniq(INSPECTIONS, r => r.brand));
+        populateFilter('f-vcode', uniq(INSPECTIONS, r => r.vendorCode).filter(v=>v));
         populateFilter('f-factory', uniq(INSPECTIONS, r => r.factory));
         populateFilter('f-ptype', uniq(INSPECTIONS, r => r.productType).filter(v=>v));
         populateFilter('f-month', uniq(INSPECTIONS, r => monthKey(r.inspDate)).reverse());
@@ -987,9 +1141,10 @@ class Dashboard {{
         this.apply();
     }}
     getFiltered() {{
-        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
+        const fl=gv('f-location'),fb=gv('f-brand'),fvc=gv('f-vcode'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
         const insp = INSPECTIONS.filter(r => {{
             if(fl&&r.location!==fl) return false; if(fb&&r.brand!==fb) return false;
+            if(fvc&&r.vendorCode!==fvc) return false;
             if(ff&&r.factory!==ff) return false; if(fpt&&r.productType!==fpt) return false;
             if(fm&&monthKey(r.inspDate)!==fm) return false;
             if(fp&&r.poNo!==fp) return false; if(fs&&r.style!==fs) return false; return true;
@@ -1123,9 +1278,8 @@ class Dashboard {{
         this.setKPI('k-pairs', fmt(pairs), `${{insp.length}} lots inspected`);
         this.setKPI('k-shipped', fmt(shipped), `${{pct(shipped,pairs)}}% of total pairs`, shipped<pairs?'bad':'good');
         this.setKPI('k-categories', fmt(cats), topCat?`Top: ${{topCat[0]}} (${{topCat[1]}} pairs)`:'No defects found');
-        const legacyCount=insp.filter(r=>r.reportFormat==='legacy').length;
-        const newCount=insp.filter(r=>r.reportFormat==='new').length;
-        this.setKPI('k-formats', legacyCount+' / '+newCount, legacyCount+' Legacy + '+newCount+' New format');
+        const vendorCodes=[...new Set(insp.map(r=>r.vendorCode).filter(v=>v))];
+        this.setKPI('k-vendors', fmt(vendorCodes.length), vendorCodes.length>0?vendorCodes.join(', '):'No vendor codes resolved');
     }}
     setKPI(id,val,sub,cls) {{
         const el=document.getElementById(id); el.querySelector('.kpi-val').textContent=val;
@@ -1172,7 +1326,7 @@ class Dashboard {{
         ]}},{{responsive:true,maintainAspectRatio:false,animation:false,plugins:{{legend:{{position:'top',labels:{{usePointStyle:true,padding:12}}}},datalabels:{{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{{weight:'bold',size:11}},color:'#333'}}}},scales:{{x:{{grid:{{display:false}}}},y:{{beginAtZero:true,ticks:{{stepSize:2}}}}}}}});
     }}
     renderInspectionTable(insp) {{
-        const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'productType',l:'Type'}},{{f:'auditor',l:'Auditor'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
+        const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'vendorCode',l:'Vendor Code'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'productType',l:'Type'}},{{f:'auditor',l:'Auditor'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
         let sortCol='inspDate',sortDir='desc'; const container=document.getElementById('tbl-inspections');
         function render(data) {{
             let h='<table class="dt"><thead><tr>';

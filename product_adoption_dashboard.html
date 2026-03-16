@@ -29,7 +29,7 @@
         .header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .header h1 { font-size: 19px; font-weight: 700; letter-spacing: 0.3px; }
         .header h1 span { font-weight: 400; opacity: 0.6; font-size: 13px; margin-left: 8px; }
-        .filters { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 14px; }
+        .filters { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-top: 14px; }
         .fg { display: flex; flex-direction: column; gap: 4px; }
         .fg label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.6); }
         .fg select { padding: 9px 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-size: 14px; width: 100%; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
@@ -145,7 +145,7 @@
             body.print-landscape .supplier-card .s-name { font-size: 8px; }
             body.print-landscape .supplier-card .s-rate { font-size: 12px; }
             body.print-landscape .supplier-card .s-detail { font-size: 7px; }
-            body.print-landscape .kpi-row { grid-template-columns: repeat(7, 1fr) !important; gap: 4px; margin-bottom: 4px; }
+            body.print-landscape .kpi-row { grid-template-columns: repeat(8, 1fr) !important; gap: 4px; margin-bottom: 4px; }
             body.print-landscape .kpi { padding: 4px 6px; }
             body.print-landscape .kpi-label { font-size: 6px; }
             body.print-landscape .kpi-val { font-size: 14px; }
@@ -185,7 +185,7 @@
             body.print-portrait .supplier-card .s-name { font-size: 7px; }
             body.print-portrait .supplier-card .s-rate { font-size: 10px; }
             body.print-portrait .supplier-card .s-detail { font-size: 6px; }
-            body.print-portrait .kpi-row { grid-template-columns: repeat(7, 1fr) !important; gap: 3px; margin-bottom: 3px; }
+            body.print-portrait .kpi-row { grid-template-columns: repeat(8, 1fr) !important; gap: 3px; margin-bottom: 3px; }
             body.print-portrait .kpi { padding: 3px 4px; }
             body.print-portrait .kpi-label { font-size: 5px; }
             body.print-portrait .kpi-val { font-size: 11px; }
@@ -231,6 +231,7 @@
         <div class="filters">
             <div class="fg"><label>Location</label><select id="f-location" onchange="D.apply()"><option value="all">All Locations</option></select></div>
             <div class="fg"><label>Brand</label><select id="f-brand" onchange="D.apply()"><option value="all">All Brands</option></select></div>
+            <div class="fg"><label>Vendor Code</label><select id="f-vcode" onchange="D.apply()"><option value="all">All Vendors</option></select></div>
             <div class="fg"><label>Factory</label><select id="f-factory" onchange="D.apply()"><option value="all">All Factories</option></select></div>
             <div class="fg"><label>Product Type</label><select id="f-ptype" onchange="D.apply()"><option value="all">All Types</option></select></div>
             <div class="fg"><label>Month</label><select id="f-month" onchange="D.apply()"><option value="all">All Months</option></select></div>
@@ -279,7 +280,7 @@
         <div class="kpi info" id="k-pairs"><div class="kpi-label">Total Pairs in Lot</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi pass" id="k-shipped"><div class="kpi-label">Pairs Approved to Ship</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
         <div class="kpi warn" id="k-categories"><div class="kpi-label">Defect Categories</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
-        <div class="kpi info" id="k-formats"><div class="kpi-label">Report Sources</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
+        <div class="kpi info" id="k-vendors"><div class="kpi-label">Vendor Codes</div><div class="kpi-val">—</div><div class="kpi-sub">—</div></div>
     </section>
 
     <!-- CHARTS -->
@@ -305,7 +306,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 05:47 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 06:00 PM &middot; 28 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -364,7 +365,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0210RNAT",
     "style": "0210RNAT",
     "poDate": "Lightweight Dot Grip Glove",
@@ -393,7 +394,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Major Defects Are Any Major Defects Found During Inspection? Yes",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -401,7 +403,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0221RGRN",
     "style": "0221RGRN",
     "poDate": "Wool Glove Liner",
@@ -430,7 +432,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Major Defects Are Any Major Defects Found During Inspection? Yes",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -438,7 +441,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0301RGRA",
     "style": "0301RGRA",
     "poDate": "Midweight Knit Glove Liner",
@@ -467,7 +470,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Major Defects Are Any Major Defects Found During Inspection? No",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -475,7 +479,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0305RMLT",
     "style": "0305RMLT",
     "poDate": "Midweight Multicolor Glove Liner",
@@ -504,7 +508,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Major Defects Are Any Major Defects Found During Inspection? Yes",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -512,7 +517,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0211RNAT",
     "style": "0211RNAT",
     "poDate": "Lightweight String Glove Liner",
@@ -541,7 +546,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Major Defects Are Any Major Defects Found During Inspection? No",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -549,7 +555,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0302RBLK",
     "style": "0302RBLK",
     "poDate": "Stretch Glove Liner",
@@ -578,7 +584,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Grain / shade variation Per Pair Gloves, %age is more ! Mallcom Rohit will take some Gloves from Bulk picked by Naveen that will be reviewed in USA office.",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2026-01-28",
@@ -586,7 +593,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Gloves",
     "factoryCode": "MIL001",
-    "factory": "MIL001",
+    "factory": "Mallcom India Limited",
     "poNo": "PO3141-0409RBLK",
     "style": "0409RBLK",
     "poDate": "Herringbone Grip Glove",
@@ -615,7 +622,8 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Print is little flat compare to original sample || Issues had been discussed / address to Mallcom Team after inspection. Grain PU Print variation Per Pair",
     "reportFormat": "new",
-    "location": "Unknown"
+    "vendorCode": "MIL001",
+    "location": "India"
   },
   {
     "inspDate": "2025-12-01",
@@ -623,7 +631,7 @@ const INSPECTIONS = [
     "auditor": "Brand Auditor",
     "productType": "Footwear",
     "factoryCode": "SCE001",
-    "factory": "Linear (Super Champ)",
+    "factory": "Super Champ Enterprises Inc",
     "poNo": "PO3066-1255CBLK",
     "style": "1255CBLK",
     "poDate": "2025-06-27",
@@ -652,13 +660,14 @@ const INSPECTIONS = [
     "minorPlan": "",
     "comments": "Quality Acceptable",
     "reportFormat": "new",
+    "vendorCode": "SCE001",
     "location": "Cambodia"
   },
   {
     "refNo": "RW-Petcher-001",
     "inspDate": "2025-08-14",
     "brand": "RefrigiWear",
-    "factory": "Petcher",
+    "factory": "PGS Group LTD",
     "poDate": "2025-02-24",
     "style": "120CR",
     "color": "BRN",
@@ -670,6 +679,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2830",
+    "vendorCode": "PGS001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
@@ -687,7 +697,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "Factory accepted above issues to improve in Next LOT.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "PGS001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -695,7 +705,7 @@ const INSPECTIONS = [
     "refNo": "RW-Petcher-002",
     "inspDate": "2025-08-14",
     "brand": "RefrigiWear",
-    "factory": "Petcher",
+    "factory": "PGS Group LTD",
     "poDate": "2025-05-19",
     "style": "1250CR",
     "color": "BLK",
@@ -707,6 +717,7 @@ const INSPECTIONS = [
     "balanceAfter": 2760,
     "timesReworked": 0,
     "poNo": "2908",
+    "vendorCode": "PGS001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
@@ -724,7 +735,7 @@ const INSPECTIONS = [
     "minorFound": 7,
     "comments": "Waterproof label not visible clearly / Not As Per Sample --- Need comments",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "PGS001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -732,7 +743,7 @@ const INSPECTIONS = [
     "refNo": "RW-Petcher-003",
     "inspDate": "2025-08-14",
     "brand": "RefrigiWear",
-    "factory": "Petcher",
+    "factory": "PGS Group LTD",
     "poDate": "2025-05-19",
     "style": "129CR",
     "color": "BLK",
@@ -744,6 +755,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2908",
+    "vendorCode": "PGS001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
@@ -761,7 +773,7 @@ const INSPECTIONS = [
     "minorFound": 3,
     "comments": "Quality is OK, waterproof woven Label stitching need to improve.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "PGS001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -769,7 +781,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-008",
     "inspDate": "2025-07-30",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "8931R",
     "color": "BLACK",
@@ -781,6 +793,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -798,7 +811,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -806,7 +819,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-007",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "7931R",
     "color": "BLACK",
@@ -818,6 +831,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -835,7 +849,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "Factory Used Wrong Product category content mentioned. Since it is BIB , Label mentioned - JACKET. 100% - walmart accepted.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -843,7 +857,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-002",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "7932R",
     "color": "BLACK/LIME",
@@ -855,6 +869,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -872,7 +887,7 @@ const INSPECTIONS = [
     "minorFound": 5,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -880,7 +895,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-004",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "7933R",
     "color": "BLACK",
@@ -892,6 +907,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -909,7 +925,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -917,7 +933,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-006",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "7934R",
     "color": "BLACK/LIME",
@@ -929,6 +945,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -946,7 +963,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -954,7 +971,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-003",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "8933R",
     "color": "BLACK",
@@ -966,6 +983,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -983,7 +1001,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -991,7 +1009,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-005",
     "inspDate": "2025-07-29",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "8934R",
     "color": "BLACK/LIME",
@@ -1003,6 +1021,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -1020,7 +1039,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1028,7 +1047,7 @@ const INSPECTIONS = [
     "refNo": "RW-FujianGerxing-001",
     "inspDate": "2025-07-28",
     "brand": "RefrigiWear",
-    "factory": "China Fujian Gerxing",
+    "factory": "Fuzhou Gerxing Garments Co Ltd",
     "poDate": "2025-04-02",
     "style": "8932R",
     "color": "BLACK/LIME",
@@ -1040,6 +1059,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2937",
+    "vendorCode": "FUJ001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -1057,7 +1077,7 @@ const INSPECTIONS = [
     "minorFound": 5,
     "comments": "",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "FUJ001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1065,7 +1085,7 @@ const INSPECTIONS = [
     "refNo": "RW-20250324-003",
     "inspDate": "2025-03-24",
     "brand": "RefrigiWear",
-    "factory": "Petcher",
+    "factory": "PGS Group LTD",
     "poDate": "2024-11-05",
     "style": "1210CR",
     "color": "BROWN",
@@ -1077,6 +1097,7 @@ const INSPECTIONS = [
     "balanceAfter": 1200,
     "timesReworked": 0,
     "poNo": "2694",
+    "vendorCode": "PGS001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
@@ -1094,7 +1115,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "PGS001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1102,7 +1123,7 @@ const INSPECTIONS = [
     "refNo": "RW-20250324-001",
     "inspDate": "2025-03-24",
     "brand": "RefrigiWear",
-    "factory": "Petcher",
+    "factory": "PGS Group LTD",
     "poDate": "2024-11-05",
     "style": "1250CR",
     "color": "BLACK",
@@ -1114,6 +1135,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2694",
+    "vendorCode": "PGS001",
     "location": "China",
     "chemMaterials": "Passed",
     "chemFullShoe": "Passed",
@@ -1131,7 +1153,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "Carton Label + Polybag Label + Tongue size Label + Wrapping Tissue paper --- Letter i -- Dot Missing All Over.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "PGS001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1139,7 +1161,7 @@ const INSPECTIONS = [
     "refNo": "RW-20250307-003",
     "inspDate": "2025-03-08",
     "brand": "RefrigiWear",
-    "factory": "CAMBODIA HORIZON",
+    "factory": "Horizon Outdoor-Galaxy International",
     "poDate": "2024-11-13",
     "style": "7930",
     "color": "BLACK/LIME",
@@ -1151,6 +1173,7 @@ const INSPECTIONS = [
     "balanceAfter": 792,
     "timesReworked": 0,
     "poNo": "2718",
+    "vendorCode": "HZN001",
     "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -1168,7 +1191,7 @@ const INSPECTIONS = [
     "minorFound": 7,
     "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon Sewing completed 50% of garments. Below is size run from which inspection got performed.\nSML/135;MED/361;LAR/355;XLG/0;2XL/92;3XL/160;4XL/872;5XL/33 = 1208 Pcs, Rest did not packed inside Master cartons.\n5-Back Elastic weaving pleats not uniform / We asked Production people & QC's to note down and work on improvements as it should match the level as Approved Sample.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "HZN001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1176,7 +1199,7 @@ const INSPECTIONS = [
     "refNo": "RW-20250307-002",
     "inspDate": "2025-03-08",
     "brand": "RefrigiWear",
-    "factory": "CAMBODIA HORIZON",
+    "factory": "Horizon Outdoor-Galaxy International",
     "poDate": "2024-11-13",
     "style": "8930",
     "color": "BLACK/LIME",
@@ -1188,6 +1211,7 @@ const INSPECTIONS = [
     "balanceAfter": 111,
     "timesReworked": 0,
     "poNo": "2718",
+    "vendorCode": "HZN001",
     "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -1205,7 +1229,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.\n4-During this day visit, Horizon completed / packed 80% of garments. Below is size run from which inspection got performed.\nSML/172;MED/394;LAR/415;XLG/340;2XL/263;3XL/170;4XL/85;5XL/60 = 1899 Pcs, Rest did not packed inside Master cartons.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "HZN001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1213,7 +1237,7 @@ const INSPECTIONS = [
     "refNo": "RW-20250307-001",
     "inspDate": "2025-03-07",
     "brand": "RefrigiWear",
-    "factory": "CAMBODIA HORIZON",
+    "factory": "Horizon Outdoor-Galaxy International",
     "poDate": "2024-11-13",
     "style": "8935",
     "color": "BLACK/LIME",
@@ -1225,6 +1249,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2718",
+    "vendorCode": "HZN001",
     "location": "Cambodia",
     "chemMaterials": "Passed",
     "chemFullShoe": null,
@@ -1242,7 +1267,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "1-Factory did not put polybag label - Later got labelled in warehouse while performing inspection.\n2-OLD Label sent by Jeb is being used. (New lable sent by Erin did not print yet).\n3-Fitting Measurements are in tolerance as per Tech-Pack.",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "HZN001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1250,7 +1275,7 @@ const INSPECTIONS = [
     "refNo": "RW-004",
     "inspDate": "2024-09-11",
     "brand": "RefrigiWear",
-    "factory": "Sampada Export, Gurugram, India",
+    "factory": "S.M. Exports",
     "poDate": "2024-06-14",
     "style": "0640RBLK",
     "color": "BLK",
@@ -1262,6 +1287,7 @@ const INSPECTIONS = [
     "balanceAfter": 936,
     "timesReworked": 0,
     "poNo": "2474",
+    "vendorCode": "SME001",
     "location": "India",
     "chemMaterials": "Not Performed",
     "chemFullShoe": null,
@@ -1279,7 +1305,7 @@ const INSPECTIONS = [
     "minorFound": 2,
     "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nLabel misprinting must be checked and shoud not use it in garments",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "SME001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1287,7 +1313,7 @@ const INSPECTIONS = [
     "refNo": "RW-001",
     "inspDate": "2024-09-10",
     "brand": "RefrigiWear",
-    "factory": "Sampada Export, Gurugram, India",
+    "factory": "S.M. Exports",
     "poDate": "2024-06-14",
     "style": "0620RBLK",
     "color": "BLK",
@@ -1299,6 +1325,7 @@ const INSPECTIONS = [
     "balanceAfter": 952,
     "timesReworked": 0,
     "poNo": "2474",
+    "vendorCode": "SME001",
     "location": "India",
     "chemMaterials": "Not Performed",
     "chemFullShoe": null,
@@ -1316,7 +1343,7 @@ const INSPECTIONS = [
     "minorFound": 6,
     "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "SME001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1324,7 +1351,7 @@ const INSPECTIONS = [
     "refNo": "RW-002",
     "inspDate": "2024-09-10",
     "brand": "RefrigiWear",
-    "factory": "Sampada Export, Gurugram, India",
+    "factory": "S.M. Exports",
     "poDate": "2024-06-14",
     "style": "0630RBLK",
     "color": "BLK",
@@ -1336,6 +1363,7 @@ const INSPECTIONS = [
     "balanceAfter": 0,
     "timesReworked": 0,
     "poNo": "2474",
+    "vendorCode": "SME001",
     "location": "India",
     "chemMaterials": "Not Performed",
     "chemFullShoe": null,
@@ -1353,7 +1381,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFolding Impression on lining is obvious and can be call out as defects side.\nLabel misprinting must be checked and shoud not use it in garments",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "SME001",
     "auditor": "",
     "reportFormat": "legacy"
   },
@@ -1361,7 +1389,7 @@ const INSPECTIONS = [
     "refNo": "RW-003",
     "inspDate": "2024-09-10",
     "brand": "RefrigiWear",
-    "factory": "Sampada Export, Gurugram, India",
+    "factory": "S.M. Exports",
     "poDate": "2024-06-14",
     "style": "0685RBLK",
     "color": "BLK",
@@ -1373,6 +1401,7 @@ const INSPECTIONS = [
     "balanceAfter": 1096,
     "timesReworked": 0,
     "poNo": "2474",
+    "vendorCode": "SME001",
     "location": "India",
     "chemMaterials": "Not Performed",
     "chemFullShoe": null,
@@ -1390,7 +1419,7 @@ const INSPECTIONS = [
     "minorFound": 4,
     "comments": "Sampada Need to work on Embroidery Woven Logo due to uneven/frayed edges.\nFront Pocket flaps box stitch width variation Vs Original Sample.\nWhite marker makring not clean underneath straps component in some garments",
     "productType": "",
-    "factoryCode": "",
+    "factoryCode": "SME001",
     "auditor": "",
     "reportFormat": "legacy"
   }
@@ -2199,6 +2228,7 @@ class Dashboard {
     init() {
         populateFilter('f-location', uniq(INSPECTIONS, r => r.location));
         populateFilter('f-brand', uniq(INSPECTIONS, r => r.brand));
+        populateFilter('f-vcode', uniq(INSPECTIONS, r => r.vendorCode).filter(v=>v));
         populateFilter('f-factory', uniq(INSPECTIONS, r => r.factory));
         populateFilter('f-ptype', uniq(INSPECTIONS, r => r.productType).filter(v=>v));
         populateFilter('f-month', uniq(INSPECTIONS, r => monthKey(r.inspDate)).reverse());
@@ -2209,9 +2239,10 @@ class Dashboard {
         this.apply();
     }
     getFiltered() {
-        const fl=gv('f-location'),fb=gv('f-brand'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
+        const fl=gv('f-location'),fb=gv('f-brand'),fvc=gv('f-vcode'),ff=gv('f-factory'),fpt=gv('f-ptype'),fm=gv('f-month'),fp=gv('f-po'),fs=gv('f-style');
         const insp = INSPECTIONS.filter(r => {
             if(fl&&r.location!==fl) return false; if(fb&&r.brand!==fb) return false;
+            if(fvc&&r.vendorCode!==fvc) return false;
             if(ff&&r.factory!==ff) return false; if(fpt&&r.productType!==fpt) return false;
             if(fm&&monthKey(r.inspDate)!==fm) return false;
             if(fp&&r.poNo!==fp) return false; if(fs&&r.style!==fs) return false; return true;
@@ -2345,9 +2376,8 @@ class Dashboard {
         this.setKPI('k-pairs', fmt(pairs), `${insp.length} lots inspected`);
         this.setKPI('k-shipped', fmt(shipped), `${pct(shipped,pairs)}% of total pairs`, shipped<pairs?'bad':'good');
         this.setKPI('k-categories', fmt(cats), topCat?`Top: ${topCat[0]} (${topCat[1]} pairs)`:'No defects found');
-        const legacyCount=insp.filter(r=>r.reportFormat==='legacy').length;
-        const newCount=insp.filter(r=>r.reportFormat==='new').length;
-        this.setKPI('k-formats', legacyCount+' / '+newCount, legacyCount+' Legacy + '+newCount+' New format');
+        const vendorCodes=[...new Set(insp.map(r=>r.vendorCode).filter(v=>v))];
+        this.setKPI('k-vendors', fmt(vendorCodes.length), vendorCodes.length>0?vendorCodes.join(', '):'No vendor codes resolved');
     }
     setKPI(id,val,sub,cls) {
         const el=document.getElementById(id); el.querySelector('.kpi-val').textContent=val;
@@ -2394,7 +2424,7 @@ class Dashboard {
         ]},{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:12}},datalabels:{display:ctx=>ctx.datasetIndex===0&&ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:-2,font:{weight:'bold',size:11},color:'#333'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:2}}}});
     }
     renderInspectionTable(insp) {
-        const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'productType',l:'Type'},{f:'auditor',l:'Auditor'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
+        const cols=[{f:'inspDate',l:'Date'},{f:'refNo',l:'Ref No.'},{f:'vendorCode',l:'Vendor Code'},{f:'factory',l:'Factory'},{f:'location',l:'Location'},{f:'productType',l:'Type'},{f:'auditor',l:'Auditor'},{f:'poNo',l:'PO No.'},{f:'style',l:'Style'},{f:'color',l:'Color'},{f:'lotSize',l:'Lot Size',fmt:'n'},{f:'sampleSize',l:'Sample',fmt:'n'},{f:'majorFound',l:'Major',fmt:'n'},{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'},{f:'minorFound',l:'Minor',fmt:'n'},{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'},{f:'result',l:'Result',fmt:'badge'},{f:'pairsApproved',l:'Pairs OK',fmt:'n'}];
         let sortCol='inspDate',sortDir='desc'; const container=document.getElementById('tbl-inspections');
         function render(data) {
             let h='<table class="dt"><thead><tr>';
