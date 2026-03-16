@@ -1365,9 +1365,9 @@ class Dashboard {{
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
         const majTotal=sorted.reduce((s,e)=>s+e[1],0);
-        const majColors=['#e65100CC','#ef6c00CC','#f57c00CC','#fb8c00CC','#ffa726CC'];
-        this.chart('c-top5major','doughnut',{{labels:sorted.map(s=>s[0]),datasets:[{{data:sorted.map(s=>s[1]),backgroundColor:majColors,borderColor:'#fff',borderWidth:2}}]}},
-        {{responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{{padding:10}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,majTotal)+'%)'}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:10}},color:ctx=>majColors[ctx.dataIndex].replace('CC',''),formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],22)+'\n'+val+' prs ('+pct(val,majTotal)+'%)'}}}}}});
+        const heatColors=['#dc3545CC','#fd7e14CC','#ffc107CC','#0d6efdCC','#198754CC'];
+        this.chart('c-top5major','doughnut',{{labels:sorted.map(s=>s[0]),datasets:[{{data:sorted.map(s=>s[1]),backgroundColor:heatColors.slice(0,sorted.length),borderColor:'#fff',borderWidth:2}}]}},
+        {{responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{{padding:{{top:25,bottom:25,left:15,right:15}}}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,majTotal)+'%)'}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:8,font:{{weight:'700',size:11}},color:'#222',backgroundColor:'rgba(255,255,255,0.8)',borderRadius:3,padding:{{top:2,bottom:2,left:4,right:4}},formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],20)+': '+val+' ('+pct(val,majTotal)+'%)'}}}}}});
     }}
     renderTop5Minor(defs) {{
         const minDefs=defs.filter(d=>d.severity==='Minor');
@@ -1376,9 +1376,9 @@ class Dashboard {{
         const sorted=Object.entries(descs).sort((a,b)=>b[1]-a[1]).slice(0,5);
         if(sorted.length===0) return;
         const minTotal=sorted.reduce((s,e)=>s+e[1],0);
-        const minColors=['#006064CC','#00838fCC','#0097a7CC','#00acc1CC','#26c6daCC'];
-        this.chart('c-top5minor','doughnut',{{labels:sorted.map(s=>s[0]),datasets:[{{data:sorted.map(s=>s[1]),backgroundColor:minColors,borderColor:'#fff',borderWidth:2}}]}},
-        {{responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{{padding:10}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,minTotal)+'%)'}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:4,font:{{weight:'bold',size:10}},color:ctx=>minColors[ctx.dataIndex].replace('CC',''),formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],22)+'\n'+val+' prs ('+pct(val,minTotal)+'%)'}}}}}});
+        const heatColors=['#dc3545CC','#fd7e14CC','#ffc107CC','#0d6efdCC','#198754CC'];
+        this.chart('c-top5minor','doughnut',{{labels:sorted.map(s=>s[0]),datasets:[{{data:sorted.map(s=>s[1]),backgroundColor:heatColors.slice(0,sorted.length),borderColor:'#fff',borderWidth:2}}]}},
+        {{responsive:true,maintainAspectRatio:false,cutout:'45%',animation:false,layout:{{padding:{{top:25,bottom:25,left:15,right:15}}}},plugins:{{legend:{{display:false}},tooltip:{{callbacks:{{label:ctx=>ctx.label+': '+ctx.parsed+' prs ('+pct(ctx.parsed,minTotal)+'%)'}}}},datalabels:{{display:ctx=>ctx.dataset.data[ctx.dataIndex]>0,anchor:'end',align:'end',offset:8,font:{{weight:'700',size:11}},color:'#222',backgroundColor:'rgba(255,255,255,0.8)',borderRadius:3,padding:{{top:2,bottom:2,left:4,right:4}},formatter:(val,ctx)=>truncLabel(sorted[ctx.dataIndex][0],20)+': '+val+' ('+pct(val,minTotal)+'%)'}}}}}});
     }}
     renderInspectionTable(insp) {{
         const cols=[{{f:'inspDate',l:'Date'}},{{f:'refNo',l:'Ref No.'}},{{f:'vendorCode',l:'Vendor Code'}},{{f:'factory',l:'Factory'}},{{f:'location',l:'Location'}},{{f:'productType',l:'Type'}},{{f:'auditor',l:'Auditor'}},{{f:'poNo',l:'PO No.'}},{{f:'style',l:'Style'}},{{f:'color',l:'Color'}},{{f:'lotSize',l:'Lot Size',fmt:'n'}},{{f:'sampleSize',l:'Sample',fmt:'n'}},{{f:'majorFound',l:'Major',fmt:'n'}},{{f:'majorMaxAllowed',l:'Max Maj.',fmt:'n'}},{{f:'minorFound',l:'Minor',fmt:'n'}},{{f:'minorMaxAllowed',l:'Max Min.',fmt:'n'}},{{f:'result',l:'Result',fmt:'badge'}},{{f:'pairsApproved',l:'Pairs OK',fmt:'n'}}];
