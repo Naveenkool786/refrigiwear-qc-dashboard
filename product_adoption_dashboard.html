@@ -293,7 +293,7 @@
         <div id="tbl-defects"></div>
     </section>
     </div>
-    <footer class="footer">Last rebuilt: March 16, 2026 at 03:34 PM &middot; 17 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
+    <footer class="footer">Last rebuilt: March 16, 2026 at 03:38 PM &middot; 20 report(s) processed &middot; Drop new PDF reports into folder and run rebuild_dashboard.py to update</footer>
 </div>
 <script>
 const C = { pass:'#198754', fail:'#dc3545', blue:'#4C72B0', orange:'#DD8452', green:'#55A868', red:'#C44E52', purple:'#8172B3', brown:'#937860', teal:'#3AAFA9', pink:'#DA8BC3' };
@@ -346,6 +346,105 @@ function exportPDF(orientation) {
 }
 
 const INSPECTIONS = [
+  {
+    "refNo": "RW-Petcher-001",
+    "inspDate": "2025-08-14",
+    "brand": "REFRIGIWEAR",
+    "factory": "Petcher",
+    "poDate": "2025-02-24",
+    "style": "120CR",
+    "color": "BRN",
+    "lotSize": 696,
+    "result": "LOT APPROVED",
+    "pairsApproved": 696,
+    "shipDate": "2025-08-15",
+    "balanceBefore": 696,
+    "balanceAfter": 0,
+    "timesReworked": 0,
+    "poNo": "2830",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": "Passed",
+    "criticalSampleSize": 16,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 16,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 80,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 5,
+    "majorFound": 3,
+    "minorMaxAllowed": 7,
+    "minorFound": 4,
+    "comments": "Factory accepted above issues to improve in Next LOT."
+  },
+  {
+    "refNo": "RW-Petcher-002",
+    "inspDate": "2025-08-14",
+    "brand": "REFRIGIWEAR",
+    "factory": "Petcher",
+    "poDate": "2025-05-19",
+    "style": "1250CR",
+    "color": "BLK",
+    "lotSize": 2760,
+    "result": "LOT REJECTED",
+    "pairsApproved": 0,
+    "shipDate": "2025-08-15",
+    "balanceBefore": 2760,
+    "balanceAfter": 2760,
+    "timesReworked": 0,
+    "poNo": "2908",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": "Passed",
+    "criticalSampleSize": 25,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 25,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 125,
+    "opticalResult": "LOT REJECTED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 7,
+    "majorFound": 10,
+    "minorMaxAllowed": 10,
+    "minorFound": 7,
+    "comments": "Waterproof label not visible clearly / Not As Per Sample --- Need comments"
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "inspDate": "2025-08-14",
+    "brand": "REFRIGIWEAR",
+    "factory": "Petcher",
+    "poDate": "2025-05-19",
+    "style": "129CR",
+    "color": "BLK",
+    "lotSize": 870,
+    "result": "LOT APPROVED",
+    "pairsApproved": 870,
+    "shipDate": "2025-08-15",
+    "balanceBefore": 870,
+    "balanceAfter": 0,
+    "timesReworked": 0,
+    "poNo": "2908",
+    "location": "Unknown",
+    "chemMaterials": "Passed",
+    "chemFullShoe": "Passed",
+    "criticalSampleSize": 16,
+    "criticalResult": "LOT APPROVED",
+    "importantSampleSize": 16,
+    "importantResult": "LOT APPROVED",
+    "sampleSize": 80,
+    "opticalResult": "LOT APPROVED",
+    "majorPlan": "Normal 2.50%",
+    "minorPlan": "Normal 4.00%",
+    "majorMaxAllowed": 5,
+    "majorFound": 4,
+    "minorMaxAllowed": 7,
+    "minorFound": 3,
+    "comments": "Quality is OK, waterproof woven Label stitching need to improve."
+  },
   {
     "refNo": "RW-FujianGerxing-008",
     "inspDate": "2025-07-30",
@@ -1146,6 +1245,104 @@ const DEFECTS = [
     "defectClass": "Stitching_車線",
     "description": "Loose threads/线松散",
     "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-001",
+    "severity": "Major",
+    "defectClass": "Lasting",
+    "description": "Wrinkles on Toe/Upper",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-001",
+    "severity": "Major",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Scratches on Quarter Panel",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-Petcher-001",
+    "severity": "Minor",
+    "defectClass": "Esthetic Look",
+    "description": "Upper Surface Defect Toe cap impression",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-Petcher-001",
+    "severity": "Minor",
+    "defectClass": "Lasting",
+    "description": "Toe/Mudguard Height Mismatch",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-Petcher-001",
+    "severity": "Minor",
+    "defectClass": "Lasting",
+    "description": "Finish/Shade Variation",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-002",
+    "severity": "Major",
+    "defectClass": "Stitching",
+    "description": "Stitching Defect Waterproof label not visible clearly / Not As Per Sample",
+    "pairs": 5
+  },
+  {
+    "refNo": "RW-Petcher-002",
+    "severity": "Major",
+    "defectClass": "Stitching",
+    "description": "Stitching Defect Reflective piping missing / Width inconsistent",
+    "pairs": 5
+  },
+  {
+    "refNo": "RW-Petcher-002",
+    "severity": "Minor",
+    "defectClass": "Lasting",
+    "description": "Crooked Toe/Saddle",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-002",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Stitching Defect Waterproof label not visible clearly",
+    "pairs": 5
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "severity": "Major",
+    "defectClass": "Lasting",
+    "description": "Toe/Mudguard Height Mismatch",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "severity": "Major",
+    "defectClass": "Packing and Labeling",
+    "description": "Improper Stuffing",
+    "pairs": 2
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Stitching Defect Waterproof Woven Label - Not visible clearly",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "severity": "Minor",
+    "defectClass": "Stitching",
+    "description": "Fraying Edges",
+    "pairs": 1
+  },
+  {
+    "refNo": "RW-Petcher-003",
+    "severity": "Minor",
+    "defectClass": "Packing and Labeling",
+    "description": "Improper Stuffing",
+    "pairs": 1
   },
   {
     "refNo": "RW-20250324-003",
